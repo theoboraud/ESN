@@ -32,22 +32,23 @@ class Alphascii:
         Returns:
             Alphascii object
         """
+
         self.seed = self.set_seed(seed)
-        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€|§"
+        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€[]|§"
 
         #self.fontfiles = ["data/font/FreeMono.ttf", "data/font/FreeMono_Italic.ttf", "data/font/FreeMono_Bold.ttf", "data/font/FreeMono_Bold_Italic.ttf"]
-        self.fontfiles = ["data/font/FreeMono.ttf", "data/font/FreeMono_Italic.ttf"]
+        self.fontfiles = ["data/font/FreeMono_Bold.ttf", "data/font/FreeMono_Bold_Italic.ttf"]
         self.nested_lvl_max = 6 # Curly bracket maximum nested level
         self.nested_lvl = np.empty(size, dtype = np.int64) # WM-units
         self.width_chars = np.empty(size, dtype = np.int64) # Output units
         self.width_total = 0 # Total length in pixels of the sequence image
         self.sequence = self.random_sequence(mode, size)
-        self.n_brackets = self.count(self.sequence, "Brackets") # Number of curly brackets into the sequence
-        self.n_characters = self.count(self.sequence, "Characters") # Number of characters other than curly brackets into the sequence
-        self.data, self.image = self.convert_sequence_to_img(self.sequence, size = 11, zmin = 0.9, zmax=1.1)
-        self.sequence_time = self.get_sequence_time(self.sequence, self.width_chars)
-        self.nested_lvl_pxl = self.compute_nested_lvl_pxl(self.nested_lvl, self.width_chars, self.width_total)
-        self.sequence_pxl = self.compute_sequence_pxl(self.sequence, self.width_chars, self.width_total, self.nested_lvl)
+        self.n_brackets = self.count_characters("Brackets") # Number of curly brackets into the sequence
+        self.n_characters = self.count_characters("Characters") # Number of characters other than curly brackets into the sequence
+        self.data, self.image = self.convert_sequence_to_img(self.sequence, zmin = 0.9, zmax=1.1)
+        self.sequence_pxl = self.get_sequence_pxl() # Characters for each pixel column in the sequence
+        self.nested_lvl_outputs = self.compute_nested_lvl_outputs() #
+        self.sequence_outputs = self.compute_sequence_outputs()
         self.n_input = self.data.shape[1]
 
     def set_seed(self, seed = None):
@@ -64,6 +65,7 @@ class Alphascii:
         if seed is None:
             import time
             seed = int((time.time()*10**6) % 4294967295)
+            print("Random seed for alphascii:", seed)
         try:
             np.random.seed(seed)
         except:
@@ -76,11 +78,13 @@ class Alphascii:
         Generate a random sequence using the Alphascii alphabet
 
         Args:
+            mode (string): "Training" for a training sequence, "Testing" for testing
             size (int): Number of characters composing the sequence
 
         Returns:
             string: Sequence generated
         """
+
         if mode == "Training":
             probs = [70, 85]
         elif mode == "Testing":
@@ -121,141 +125,49 @@ class Alphascii:
         return sequence
 
 
-    def count(self, sequence, mode):
-
-        counter = 0
-        for i in range(len(sequence)):
-            if mode == "Brackets":
-                if sequence[i] == "{" or sequence[i] == "}":
-                    counter += 1
-            elif mode == "Characters":
-                if sequence[i] != "{" and sequence[i] != "}":
-                    counter += 1
-        return counter
-
-
-    #def convert_char_to_img(self, c, w_font):
+    def count_characters(self, mode):
         """
-        Convert a given char into an image with a randomly selected font
+        Count the number of curly brackets or other characters in the sequence
 
         Args:
-            c (char): Character to convert into an image
-            width (int): randomly selected font width
+            mode (string): "Brackets" to count curly brackets, "Characters" for others
 
-        Returns:
-            Image object: Character image
+        Return:
+            int: Number of target characters to count in the sequence
         """
 
-        """ TO KICK OUT
-        fontpath = "data/font/"
-        rand_font = random.randint(0, len(self.fontfiles) - 1)
-        if fontfile is None:
-            fontfile = fontpath + self.fontfiles[rand_font]
-        if fontfile == "data/font/FreeMono_Bold.ttf" or fontfile == "data/font/FreeMono_Bold_Italic.ttf":
-            font = ImageFont.truetype(fontfile, 11)
-        else:
-            font = ImageFont.truetype(fontfile, 100)
-        fontsize = font.getsize(c)
-        ascent, descent = font.getmetrics()
+        counter = 0
+        if mode == "Brackets":
+            for i in range(len(self.sequence)):
+                if self.sequence[i] == "{" or self.sequence[i] == "}":
+                    counter += 1
 
-        img = Image.new('L', (fontsize[0], ascent + descent), 0)
+        elif mode == "Characters":
+            for i in range(len(self.sequence)):
+                if self.sequence[i] != "{" and self.sequence[i] != "}":
+                    counter += 1
 
-        d = ImageDraw.Draw(img)
+        return counter
 
-        d.text((0, 0), c, fill=255, font = font)
-        img = resizeimage.resize_width(img, width)
-        #img = img.resize((width, 12))#, Image.ANTIALIAS)
-
-        return img
-        """
-        """
-        size = 20
-        faces = ( ft.Face('data/font/FreeMono.ttf'),
-                  ft.Face('data/font/FreeMono_Bold.ttf'),
-                  ft.Face('data/font/FreeMono_Italic.ttf'),
-                  ft.Face('data/font/FreeMono_Bold_Italic.ttf') )
-        #faces = [ft.Face('data/font/FreeMono_Bold.ttf'), ft.Face('data/font/FreeMono.ttf'), ft.Face('data/font/FreeMono_Bold_Italic.ttf')]
-        for face in faces:
-            face.set_char_size( size*64 )
-        #faces[0].set_char_size( size*64 )
-        slots = [face.glyph for face in faces]
-        #slots = [faces[0].glyph]
-
-        text = c
-        font = np.random.randint(0, len(faces), len(text))
-
-
-        # First pass to compute bbox
-        width, height, baseline = 0, 0, 0
-        previous = 0
-        for i,char in enumerate(text):
-            index = font[i]
-            face, slot = faces[index], slots[index]
-            face.load_char(char, ft.FT_LOAD_RENDER | ft.FT_LOAD_FORCE_AUTOHINT)
-            bitmap = slot.bitmap
-            height = max(height,
-                         bitmap.rows + max(0,-(slot.bitmap_top-bitmap.rows)))
-            baseline = max(baseline, max(0,-(slot.bitmap_top-bitmap.rows)))
-            kerning = face.get_kerning(previous, char)
-            width += (slot.advance.x >> 6) #+ (kerning.x >> 6)
-            previous = char
-
-        Z = np.zeros((height,width), dtype=np.ubyte)
-
-        # Second pass for actual rendering
-        x, y = 0, 0
-        previous = 0
-        for i,char in enumerate(text):
-            index = font[i]
-            face, slot = faces[index], slots[index]
-            face.load_char(char, ft.FT_LOAD_RENDER | ft.FT_LOAD_FORCE_AUTOHINT)
-            bitmap = slot.bitmap
-            top = slot.bitmap_top
-            left = slot.bitmap_left
-            w,h = bitmap.width, bitmap.rows
-            y = height-baseline-top
-            kerning = face.get_kerning(previous, char)
-            x += (kerning.x >> 6)
-            Z[y:y+h,x:x+w] += np.array(bitmap.buffer, dtype='ubyte').reshape(h,w)
-            x += (slot.advance.x >> 6)
-            previous = char
-
-        #Z = Z/255.0
-        img = Image.fromarray(Z, 'L')
-        #print(np.asarray(img).shape)
-        img = img.resize((w_font, 12))
-        #print(np.asarray(img).shape)
-
-        return img
-        """
 
     def convert_sequence_to_img(self, text, size=11, zmin=1.0, zmax=1.0, add_kerning=False):
         """
         Generate a noisy bitmap string of text using different fonts
 
-        Parameters
-        ==========
+        Args:
+            text (string): Text to be displayed
 
-        text: string
-            Text to be displayed
+            size (int): Font size to use to generate text (default 20)
 
-        size: int
-            Font size to use to generate text (default 20)
+            zmin (float): Minimal horizontal distortion
 
-        zmin: float
-            Minimal horizontal distortion
+            zmax (float): Maximal horizontal distortion
 
-        zmax: float
-            Maximal horizontal distortion
+        Returns:
+            Tuple of numpy array (Z,I)
+                Z is the bitmap string array
 
-        Returns
-        =======
-
-        Tuple of numpy array (Z,I)
-
-           Z is the bitmap string array
-
-           I is a unidimensional numpy array that indicates the corresponding
+                I is a unidimensional numpy array that indicates the corresponding
            character for each column of Z
         """
 
@@ -353,116 +265,89 @@ class Alphascii:
         return (Z/255.0).T, img
 
 
-    #def convert_sequence_to_img(self, s):
-        """
-        Convert a given string sequence into an image by adding each character image one by one
-
-        Args:
-            s (string): Sequence to convert into an image
-
-        Returns:
-            Image object: Sequence image
-        """
-        """
-        for i in range(len(s)):
-            self.width_chars[i] = 7 #random.randint(6, 8)
-            self.width_total += self.width_chars[i]
-
-
-        img = Image.new('L', (self.width_total, 30), 0)
-        width_sequence = 0
-        for i in range(len(s)):
-            img.paste(self.convert_char_to_img(s[i], w_font=self.width_chars[i]), (width_sequence, 0))
-            width_sequence += self.width_chars[i]
-
-
-        return img
-        """
-
-    def compute_nested_lvl_pxl(self, nested_lvl, width_chars, width_total):
+    def compute_nested_lvl_outputs(self):
         """
         Compute the matrix containing the current bracket nested lvl for each column of pixel
 
-        Args:
-            nested_lvl (size vector): Bracket nested level for each character in the sequence
-            width_chars (size vector): Width in pixels for each character in the sequence
-            width_total (int): Total length of the sequence image in pixel
-
         Returns:
             width_total x nested_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
         """
-        nested_lvl_pxl = np.ones((width_total, self.nested_lvl_max))
-        nested_lvl_pxl *= -0.5
+
+        nested_lvl_outputs = np.ones((self.width_total, self.nested_lvl_max))
+        nested_lvl_outputs *= -0.5
         current_pixel = 0
 
         current_bracket_lvl = 0
-        for i in range(len(nested_lvl)):
-            for j in range(width_chars[i]):
-                if j >= np.ceil(width_chars[i]/2):
-                    current_bracket_lvl = nested_lvl[i]
+        for i in range(len(self.nested_lvl)):
+            for j in range(self.width_chars[i]):
+                if j >= np.ceil(self.width_chars[i]/2):
+                    current_bracket_lvl = self.nested_lvl[i]
                 for k in range(current_bracket_lvl):
-                    nested_lvl_pxl[current_pixel, k] = 0.5
+                    nested_lvl_outputs[current_pixel, k] = 0.5
                 current_pixel += 1
 
-        return nested_lvl_pxl
+        return nested_lvl_outputs
 
 
-    def compute_sequence_pxl(self, sequence, width_chars, width_total, nested_lvl):
+    def compute_sequence_outputs(self):
         """
         Compute the matrix containing the current character activation for each column of pixel
 
-        Args:
-            nested_lvl (size vector): Bracket nested level for each character in the sequence
-            width_chars (size vector): Width in pixels for each character in the sequence
-            width_total (int): Total length of the sequence image in pixel
-
         Returns:
             width_total x nested_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
-
         """
-        sequence_pxl = np.nan * np.zeros((width_total, len(self.alphabet)))
+
+        sequence_outputs = np.nan * np.zeros((self.width_total, len(self.alphabet)))
         current_pixel = -1
 
-        for i in range(len(sequence)):
-            if i != (len(sequence) - 1):
+        for i in range(len(self.sequence)):
+            if i != (len(self.sequence) - 1):
                 #current_char = sequence[i]
-                current_char = sequence[i + 1]
+                current_char = self.sequence[i + 1]
             else:
                 current_char = "{"
-            mid_char = math.ceil(width_chars[i]/2)
+            mid_char = math.ceil(self.width_chars[i]/2)
             current_pixel += mid_char
 
 
             for j in range(len(self.alphabet)):
                 if current_char == self.alphabet[j]:
-                    sequence_pxl[current_pixel] = 0
-                    #sequence_pxl[current_pixel, (j + 1 + nested_lvl[i]) % len(self.alphabet)] = 1
-                    sequence_pxl[current_pixel, j] = 1
-            current_pixel += (width_chars[i] - mid_char)
+                    sequence_outputs[current_pixel] = 0
+                    #sequence_outputs[current_pixel, (j + 1 + nested_lvl[i]) % len(self.alphabet)] = 1
+                    sequence_outputs[current_pixel, j] = 1
+            current_pixel += (self.width_chars[i] - mid_char)
 
-        return sequence_pxl
+        return sequence_outputs
 
 
+    def get_sequence_pxl(self):
+        """
+        Compute the characters for each pixel column in the sequence data
 
-    def get_sequence_time(self, sequence, width_chars):
-        sequence_time = np.empty(self.width_total, dtype="U1")
+        Returns:
+            width_total sized array: Return each characters represented by a given pixel column
+        """
+
+        sequence_pxl = np.empty(self.width_total, dtype="U1")
         current_char = 0
         current_width = 0
-        for i in range(len(sequence_time)):
-            sequence_time[i] = sequence[current_char]
+        for i in range(len(sequence_pxl)):
+            sequence_pxl[i] = self.sequence[current_char]
             current_width += 1
-            if current_width == width_chars[current_char]:
+            if current_width == self.width_chars[current_char]:
                 current_width = 0
                 current_char += 1
-        return sequence_time
+
+        return sequence_pxl
 
 
 # ------------------------------------------- #
 # ----------------- TESTING ----------------- #
 # ------------------------------------------- #
+
 if __name__ == "__main__":
     alphascii = Alphascii("Training", 100)
     print(alphascii.sequence)
     alphascii.image.show()
     print("width_total:", alphascii.width_total)
-    print(alphascii.sequence_time)
+    print(alphascii.sequence_pxl)
