@@ -1,9 +1,16 @@
+"""
+@author: Theophile BORAUD
+t.boraud@warwick.co.uk
+Copyright 2019, Theophile BORAUD, Anthony STROCK, All rights reserved.
+"""
+
 import random
 import numpy as np
 import math
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import freetype as ft
 import scipy.ndimage
+import sys
 
 
 
@@ -15,13 +22,12 @@ import scipy.ndimage
 class Alphascii:
 
 
-
 # ------------------------------------------- #
 # ---------------- FUNCTIONS ---------------- #
 # ------------------------------------------- #
 
 
-    def __init__(self, mode, size, seed = None):
+    def __init__(self, mode, size, seed = None, set_i = 0):
         """
         Constructor function
 
@@ -36,13 +42,22 @@ class Alphascii:
         self.seed = self.set_seed(seed)
         self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€[]|§"
 
-        #self.fontfiles = ["data/font/FreeMono.ttf", "data/font/FreeMono_Italic.ttf", "data/font/FreeMono_Bold.ttf", "data/font/FreeMono_Bold_Italic.ttf"]
-        self.fontfiles = ["data/font/FreeMono_Bold.ttf", "data/font/FreeMono_Bold_Italic.ttf"]
+        #self.fontfiles = ["data/font/FreeMono.ttf", "data/font/FreeMono_Italic.ttf", "data/font/FreeMono_Bold.ttf", "data/font/FreeMono_BoldItalic.ttf"]
+        self.fontfiles = ["data/font/FreeMono_BoldItalic.ttf"]
+        self.fontstring = ""
+        for i in range(len(self.fontfiles)):
+            str = self.fontfiles[i][19:-4]
+            if str == "":
+                str = "Classic"
+            str += "_"
+            self.fontstring += str
+        self.mode = mode
+        self.fontstring = self.fontstring[:-1]
         self.nested_lvl_max = 6 # Curly bracket maximum nested level
         self.nested_lvl = np.empty(size, dtype = np.int64) # WM-units
         self.width_chars = np.empty(size, dtype = np.int64) # Output units
         self.width_total = 0 # Total length in pixels of the sequence image
-        self.sequence = self.random_sequence(mode, size)
+        self.sequence = self.random_sequence(mode, size, set_i)
         self.n_brackets = self.count_characters("Brackets") # Number of curly brackets into the sequence
         self.n_characters = self.count_characters("Characters") # Number of characters other than curly brackets into the sequence
         self.data, self.image = self.convert_sequence_to_img(self.sequence, zmin = 0.9, zmax=1.1)
@@ -73,7 +88,7 @@ class Alphascii:
         return seed
 
 
-    def random_sequence(self, mode, size):
+    def random_sequence(self, mode, size, set_i):
         """
         Generate a random sequence using the Alphascii alphabet
 
@@ -85,14 +100,17 @@ class Alphascii:
             string: Sequence generated
         """
 
+        sequence = "" # Store the sequence of characters
+        i = 0 # Nested level of curly brackets
+        j = random.randint(0, 64) # Current character index
         if mode == "Training":
             probs = [70, 85]
         elif mode == "Testing":
             probs = [94, 97]
+        elif mode == "PCA":
+            probs = [101, 101] # No curly brackets
+            i = set_i
 
-        sequence = "" # Store the sequence of characters
-        i = 0 # Nested level of curly brackets
-        j = random.randint(0, 64) # Current character index
         for k in range(size):
             char = None
             while(char is None): # Select a randon probability until the next character has been randomly chosen
@@ -156,17 +174,13 @@ class Alphascii:
 
         Args:
             text (string): Text to be displayed
-
             size (int): Font size to use to generate text (default 20)
-
             zmin (float): Minimal horizontal distortion
-
             zmax (float): Maximal horizontal distortion
 
         Returns:
             Tuple of numpy array (Z,I)
                 Z is the bitmap string array
-
                 I is a unidimensional numpy array that indicates the corresponding
            character for each column of Z
         """
@@ -256,13 +270,36 @@ class Alphascii:
             self.width_chars[i] = advance
             self.width_total += advance
 
-        Z = Z[:,:self.width_total]
+        # TODO: Salt and pepper
+        Z = self.salt_pepper(Z[:,:self.width_total])
         img = Image.fromarray(Z, 'L')
         #print(np.asarray(img).shape)
         #img = img.resize((w_font, 12))
         #print(np.asarray(img).shape)
 
         return (Z/255.0).T, img
+
+
+    def salt_pepper(self, data):
+        """
+        Add salt and pepper noise to the given data
+
+        Inputs:
+            data (matrix): Given data to add noise to
+
+        Returns:
+            matrix: salt and pepper noised data
+
+        """
+        p = 0.5
+        x = 0.1
+        for i in range(data.shape[0]):
+            for j in range(data.shape[1]):
+                rng = np.random.uniform(low = 0, high = 1) <= p
+                rng2 = np.random.choice([-1, 1])
+                data[i, j] = int(np.clip(np.float(data[i,j]) + x * rng * rng2 * 255, 0, 255))
+
+        return data
 
 
     def compute_nested_lvl_outputs(self):
@@ -346,8 +383,6 @@ class Alphascii:
 # ------------------------------------------- #
 
 if __name__ == "__main__":
-    alphascii = Alphascii("Training", 100)
+    alphascii = Alphascii("PCA", 100, set_i = 0)
     print(alphascii.sequence)
     alphascii.image.show()
-    print("width_total:", alphascii.width_total)
-    print(alphascii.sequence_pxl)
