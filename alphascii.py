@@ -40,29 +40,23 @@ class Alphascii:
         """
 
         self.seed = self.set_seed(seed)
-        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€[]|§"
-
-        #self.fontfiles = ["data/font/FreeMono.ttf", "data/font/FreeMono_Italic.ttf", "data/font/FreeMono_Bold.ttf", "data/font/FreeMono_BoldItalic.ttf"]
-        self.fontfiles = ["data/font/FreeMono_BoldItalic.ttf"]
-        self.fontstring = ""
-        for i in range(len(self.fontfiles)):
-            str = self.fontfiles[i][19:-4]
-            if str == "":
-                str = "Classic"
-            str += "_"
-            self.fontstring += str
+        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€[]|§" # The sequence is build using random characters from the alphabet
+        self.fontfiles =   {"Classic" : "data/font/FreeMono.ttf",
+                            "Oblique" : "data/font/FreeMonoOblique.ttf",
+                            "Bold" : "data/font/FreeMonoBold.ttf",
+                            "BoldOblique" : "data/font/FreeMonoBoldOblique.ttf"}
+        self.fontstring = "_".join(self.fontfiles.keys()) # Name of the directory using the fonts useds
         self.mode = mode
-        self.fontstring = self.fontstring[:-1]
-        self.nested_lvl_max = 6 # Curly bracket maximum nested level
-        self.nested_lvl = np.empty(size, dtype = np.int64) # WM-units
+        self.bracket_lvl_max = 6 # Maximum curly bracket level
+        self.bracket_lvl = np.empty(size, dtype = np.int64) # WM-units
         self.width_chars = np.empty(size, dtype = np.int64) # Output units
         self.width_total = 0 # Total length in pixels of the sequence image
-        self.sequence = self.random_sequence(mode, size, set_i)
-        self.n_brackets = self.count_characters("Brackets") # Number of curly brackets into the sequence
-        self.n_characters = self.count_characters("Characters") # Number of characters other than curly brackets into the sequence
+        self.sequence = self.random_sequence(mode, size, set_i) # Character sequence built from characters in self.alphabet or curly brackets
+        self.n_brackets = self.sequence.count("[") + self.sequence.count("]") # Number of curly brackets into the sequence
+        self.n_characters = len(self.sequence) - self.n_brackets # Number of characters other than curly brackets into the sequence
         self.data, self.image = self.convert_sequence_to_img(self.sequence, zmin = 0.9, zmax=1.1)
         self.sequence_pxl = self.get_sequence_pxl() # Characters for each pixel column in the sequence
-        self.nested_lvl_outputs = self.compute_nested_lvl_outputs() #
+        self.bracket_lvl_outputs = self.compute_bracket_lvl_outputs() #
         self.sequence_outputs = self.compute_sequence_outputs()
         self.n_input = self.data.shape[1]
 
@@ -101,71 +95,48 @@ class Alphascii:
         """
 
         sequence = "" # Store the sequence of characters
-        i = 0 # Nested level of curly brackets
-        j = random.randint(0, 64) # Current character index
+        i = 0 # bracket level of curly brackets
+        j = random.randint(0, 65) # Current character index
         if mode == "Training":
-            probs = [70, 85]
+            p_bracket = 0.15
         elif mode == "Testing":
-            probs = [94, 97]
+            p_bracket = 0.06
         elif mode == "PCA":
-            probs = [101, 101] # No curly brackets
+            p_bracket = 0 # No curly brackets
             i = set_i
 
         for k in range(size):
             char = None
-            while(char is None): # Select a randon probability until the next character has been randomly chosen
-                prob_char = random.randint(1, 100) # Percent probability of next character
+            while(char is None): # Select a random probability until the next character has been randomly chosen
+                p_char = random.random() # Probability of next character
 
-                if prob_char <= probs[0]: # Chance of getting an ASCII character
-                    prob_ascii = random.randint(1, 10) # Percent probability to predict or randomise the next ASCII character
-                    next_j = (i + j + 1) % len(self.alphabet)
-                    if prob_ascii <= 8: # 80% chance next character index is i + j modulo 65
-                        j = next_j
-                    else: # 20% chance next character is randomly selected among the 64 other alphabet characters
-                        rand_index = next_j
-                        while rand_index == next_j:
-                            rand_index = random.randint(0, len(self.alphabet) - 1)
-                        j = rand_index
-                    char = self.alphabet[j]
                 # Chance of getting an open curly bracket
-                elif probs[0] < prob_char <= probs[1] and i < self.nested_lvl_max:
+                if p_char < p_bracket and i < self.bracket_lvl_max:
                     char = '{'
                     i += 1 # Increase the nexted level
 
                 # Chance of getting a close curly bracket
-                elif probs[1] < prob_char and i > 0:
+                elif p_bracket < p_char <= 2 * p_bracket and i > 0:
                     char = '}'
-                    i -= 1 # Decrease the nested level
+                    i -= 1 # Decrease the bracket level
 
-            self.nested_lvl[k] = i
+                # Chance of getting an ASCII character
+                elif p_char > 2 * p_bracket:
+                    p_ascii = random.random() # Probability to predict or randomise the next ASCII character
+                    next_j = (i + j + 1) % len(self.alphabet)
+                    if p_ascii < 0.8: # 80% chance next character index is i + j + 1 modulo 65
+                        j = next_j
+                    else: # 20% chance next character is randomly selected among the 64 other alphabet characters
+                        rand_index = next_j
+                        while rand_index == next_j: # Select an character index not equal to i + j + 1
+                            rand_index = random.randint(0, len(self.alphabet) - 1)
+                        j = rand_index
+                    char = self.alphabet[j]
+
+            self.bracket_lvl[k] = i
             sequence += char
 
         return sequence
-
-
-    def count_characters(self, mode):
-        """
-        Count the number of curly brackets or other characters in the sequence
-
-        Args:
-            mode (string): "Brackets" to count curly brackets, "Characters" for others
-
-        Return:
-            int: Number of target characters to count in the sequence
-        """
-
-        counter = 0
-        if mode == "Brackets":
-            for i in range(len(self.sequence)):
-                if self.sequence[i] == "{" or self.sequence[i] == "}":
-                    counter += 1
-
-        elif mode == "Characters":
-            for i in range(len(self.sequence)):
-                if self.sequence[i] != "{" and self.sequence[i] != "}":
-                    counter += 1
-
-        return counter
 
 
     def convert_sequence_to_img(self, text, size=11, zmin=1.0, zmax=1.0, add_kerning=False):
@@ -186,7 +157,7 @@ class Alphascii:
         """
 
         # Load fonts
-        fonts = self.fontfiles
+        fonts = self.fontfiles.values()
         faces = [ft.Face(filename) for filename in fonts]
         for face in faces:
             face.set_char_size(size*64)
@@ -291,39 +262,37 @@ class Alphascii:
             matrix: salt and pepper noised data
 
         """
-        p = 0.5
-        x = 0.1
-        for i in range(data.shape[0]):
-            for j in range(data.shape[1]):
-                rng = np.random.uniform(low = 0, high = 1) <= p
-                rng2 = np.random.choice([-1, 1])
-                data[i, j] = int(np.clip(np.float(data[i,j]) + x * rng * rng2 * 255, 0, 255))
+        p = 0.1 # Probability to add salt and pepper noise
+        x = 0.1 # Amplitude of salt and pepper noise
+
+        rand = np.random.choice([0, x*255, -x*255], size = data.shape, p = [1-p, p/2, p/2])
+        data = np.uint8(np.clip(data + rand, 0, 255))
 
         return data
 
 
-    def compute_nested_lvl_outputs(self):
+    def compute_bracket_lvl_outputs(self):
         """
-        Compute the matrix containing the current bracket nested lvl for each column of pixel
+        Compute the matrix containing the current bracket bracket lvl for each column of pixel
 
         Returns:
-            width_total x nested_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
+            width_total x bracket_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
         """
 
-        nested_lvl_outputs = np.ones((self.width_total, self.nested_lvl_max))
-        nested_lvl_outputs *= -0.5
+        bracket_lvl_outputs = np.ones((self.width_total, self.bracket_lvl_max))
+        bracket_lvl_outputs *= -0.5
         current_pixel = 0
 
         current_bracket_lvl = 0
-        for i in range(len(self.nested_lvl)):
+        for i in range(len(self.bracket_lvl)):
             for j in range(self.width_chars[i]):
                 if j >= np.ceil(self.width_chars[i]/2):
-                    current_bracket_lvl = self.nested_lvl[i]
+                    current_bracket_lvl = self.bracket_lvl[i]
                 for k in range(current_bracket_lvl):
-                    nested_lvl_outputs[current_pixel, k] = 0.5
+                    bracket_lvl_outputs[current_pixel, k] = 0.5
                 current_pixel += 1
 
-        return nested_lvl_outputs
+        return bracket_lvl_outputs
 
 
     def compute_sequence_outputs(self):
@@ -331,7 +300,7 @@ class Alphascii:
         Compute the matrix containing the current character activation for each column of pixel
 
         Returns:
-            width_total x nested_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
+            width_total x bracket_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
         """
 
         sequence_outputs = np.nan * np.zeros((self.width_total, len(self.alphabet)))
@@ -350,7 +319,7 @@ class Alphascii:
             for j in range(len(self.alphabet)):
                 if current_char == self.alphabet[j]:
                     sequence_outputs[current_pixel] = 0
-                    #sequence_outputs[current_pixel, (j + 1 + nested_lvl[i]) % len(self.alphabet)] = 1
+                    #sequence_outputs[current_pixel, (j + 1 + bracket_lvl[i]) % len(self.alphabet)] = 1
                     sequence_outputs[current_pixel, j] = 1
             current_pixel += (self.width_chars[i] - mid_char)
 
@@ -383,6 +352,6 @@ class Alphascii:
 # ------------------------------------------- #
 
 if __name__ == "__main__":
-    alphascii = Alphascii("PCA", 100, set_i = 0)
+    alphascii = Alphascii("Training", 100, set_i = 0)
     print(alphascii.sequence)
     alphascii.image.show()
