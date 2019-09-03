@@ -18,32 +18,32 @@ import matplotlib.cm as cm
 if len(sys.argv) > 1:
     dirname = str(sys.argv[1])
 else:
-    dirname = "data/Classic_Italic_Bold_BoldItalic" #/without_M"
+    dirname = "data/Classic_Oblique_Bold_BoldOblique" #/without_M"
 
 files = ("{}/PC_X.npy".format(dirname), "{}/PC_U.npy".format(dirname), "{}/lenght_x.npy".format(dirname))
 
 # Generate data only if not already generated. Delete every file in files list to be able to generate new data
 if not np.all([os.path.exists(file) for file in files]):
 
-    esn = ESN()
+    jaeger = ESN()
 
-    esn.Win = np.load("{}/Win.npy".format(dirname))
-    esn.W = np.load("{}/W.npy".format(dirname))
-    esn.Wb = np.load("{}/Wb.npy".format(dirname))
-    esn.Wmem = np.load("{}/Wmem.npy".format(dirname))
-    esn.Wout = np.load("{}/Wout.npy".format(dirname))
+    jaeger.Win = np.load("{}/Win.npy".format(dirname))
+    jaeger.W = np.load("{}/W.npy".format(dirname))
+    jaeger.Wb = np.load("{}/Wb.npy".format(dirname))
+    jaeger.Wmem = np.load("{}/Wmem.npy".format(dirname))
+    jaeger.Wout = np.load("{}/Wout.npy".format(dirname))
 
-    print("\nGenerating data...\n")
+    print("\nGenerating data...")
     lenght_x = np.empty(7, dtype = np.int)
     for i in range(7):
-        print("------ Memory: {} ------\n".format(i))
-        alphascii = Alphascii("PCA", 6500, seed = esn.seed + i, set_i = i)
+        print("\n------ Memory: {} ------".format(i))
+        alphascii = Alphascii("PCA", 6500, seed = jaeger.seed + i, set_i = i)
 
         if i == 0:
-            U, X = esn.test(alphascii)
+            U, X = jaeger.test(alphascii)
             lenght_x[i] = int(X.shape[0])
         else:
-            u, x = esn.test(alphascii)
+            u, x = jaeger.test(alphascii)
             U = np.append(U, u, axis = 0)
             X = np.append(X, x, axis = 0)
 
@@ -104,4 +104,5 @@ ax.set_ylabel('Reservoir PC 2')
 ax.set_zlabel('Input PC 1')
 ax.legend()
 plt.savefig(dirname + "/fig.png")
-plt.show()
+plt.draw()
+plt.show(block = True)

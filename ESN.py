@@ -33,7 +33,7 @@ class ESN:
 
     def __init__(self):
         """
-        Constructor of ESN class
+        Constructor of the ESN class
 
         Args:
             K (int): Number of input given by the alpascii objects (used to vary size of sequence data characters)
@@ -47,14 +47,9 @@ class ESN:
         # Set the directory name in which all important data will be saved
         self.dirname = ""
 
-        # Number of training and tests characters
-        if len(sys.argv) > 1 and __name__ == "__main__": # If argument is specified for testing purposes, multiply training and testing time by it
-            mult = float(sys.argv[1])
-        else:
-            mult = 1
-        self.train_characters_Wmem = int(10000 * mult) # Only Wmem is computed -> 10000 characters sequence
-        self.train_characters_Wout = int(49000 * mult) # Wout is computed      -> 49000 characters sequence
-        self.test_characters = int(35000 * mult) # Testing                      -> 35000 characters sequence
+        self.train_characters_Wmem = int(10000) # Only Wmem is computed -> 10000 characters sequence
+        self.train_characters_Wout = int(49000) # Wout is computed      -> 49000 characters sequence
+        self.test_characters = int(35000)       # Testing               -> 35000 characters sequence
 
         # Input
         self.K = 13 # 12 input units + bias
@@ -77,7 +72,6 @@ class ESN:
         self.W_value = 0.1540 # Reservoir weights value (-0.1540 or +0.1540)
         self.W = self.random_W(self.N) # Reservoir weight matrix of size N x N
         self.Wb = np.random.choice((-0.4, 0.4), (self.N, self.WM)) # Feedback weight matrix
-        #self.Wb = np.zeros((self.N, self.WM))
         self.res_Wout = 1e-4 # Weight restraint in Wout
         self.Wout_threshold = 0.5
         self.Wmem = np.empty((self.WM, (self.K + self.N + self.WM)))
@@ -93,8 +87,8 @@ class ESN:
             int: Seed
         """
 
-        if len(sys.argv) > 2:
-            seed = int(sys.argv[2])
+        if len(sys.argv) > 1:
+            seed = int(sys.argv[1])
         else:
             import time
             seed = int((time.time()*10**6) % 4294967295)
@@ -164,7 +158,7 @@ class ESN:
         """
 
         U = esn.add_bias(alphascii.data, self.U_bias) # Inputs (T x K matrix)
-        M = alphascii.nested_lvl_outputs # Target of WM-units (T x WM matrix)
+        M = alphascii.bracket_lvl_outputs # Target of WM-units (T x WM matrix)
         T = len(U) # Training time (int)
 
         # Update directory name to save data
@@ -248,7 +242,7 @@ class ESN:
         """
 
         U = self.add_bias(alphascii.data, self.U_bias)# Inputs activations during time T (T x K matrix)
-        M = alphascii.nested_lvl_outputs # Target of WM-units (T x WM matrix)
+        M = alphascii.bracket_lvl_outputs # Target of WM-units (T x WM matrix)
         Y = alphascii.sequence_outputs # Target output activations during time T (T x L matrix)
         T = len(U) # Training time (int)
 
@@ -332,7 +326,7 @@ class ESN:
         """
 
         U = self.add_bias(alphascii.data, self.U_bias)# Inputs activations during time T (T x K matrix)
-        M = alphascii.nested_lvl_outputs # Target WM-units during time T (T x WM)
+        M = alphascii.bracket_lvl_outputs # Target WM-units during time T (T x WM)
         Y = alphascii.sequence_outputs # Target outputs during time T (T x L)
         T = len(U) # Training time (int)
 
