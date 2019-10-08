@@ -47,6 +47,7 @@ class ESN:
         # Set the directory name in which all important data will be saved
         self.dirname = ""
 
+        # Training times
         self.train_characters_Wmem = int(10000) # Only Wmem is computed -> 10000 characters sequence
         self.train_characters_Wout = int(49000) # Wout is computed      -> 49000 characters sequence
         self.test_characters = int(35000)       # Testing               -> 35000 characters sequence
