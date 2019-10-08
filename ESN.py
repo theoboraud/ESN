@@ -72,8 +72,6 @@ class ESN:
         self.W_value = 0.1540 # Reservoir weights value (-0.1540 or +0.1540)
         self.W = self.random_W(self.N) # Reservoir weight matrix of size N x N
         self.Wb = np.random.choice((-0.4, 0.4), (self.N, self.WM)) # Feedback weight matrix
-        self.res_Wout = 1e-4 # Weight restraint in Wout
-        self.Wout_threshold = 0.5
         self.Wmem = np.empty((self.WM, (self.K + self.N + self.WM)))
         self.Wout = np.empty((self.L, (self.K + self.N)))
         print("")
@@ -157,7 +155,7 @@ class ESN:
             WM x (K + N + WM) matrix: Wmem
         """
 
-        U = esn.add_bias(alphascii.data, self.U_bias) # Inputs (T x K matrix)
+        U = self.add_bias(alphascii.data, self.U_bias) # Inputs (T x K matrix)
         M = alphascii.bracket_lvl_outputs # Target of WM-units (T x WM matrix)
         T = len(U) # Training time (int)
 
@@ -196,12 +194,12 @@ class ESN:
             M_test[0] = M[0]
             X_test[0] = X[0]
             for i in tqdm(range(1, T)):
-                X_test[i] = self.x_n1(self.Win, U[i], self.W, X_test[i-1], self.Wb, M_test[i-1])
-                M_test[i] = self.m_n1(Wmem, U[i], X_test[i], M_test[i-1])
+                X_test[i] = self.x_n1(U[i], X_test[i-1], M_test[i-1])
+                M_test[i] = self.m_n1(U[i], X_test[i], M_test[i-1])
                 #print("M({}) = {}".format(i, M[i]))
                 #print("M_test({}) = {}".format(i, M_test[i]))
 
-            img1 = self.concatenate_imgs(alphascii.sequence_img, self.img_WM_units(M))
+            img1 = self.concatenate_imgs(alphascii.image, self.img_WM_units(M))
             img = self.concatenate_imgs(img1, self.img_WM_units(M_test))
             img.show()
             img.save("data/train_Wmem_{}fonts.png".format(len(alphascii.fontfiles)))
@@ -220,7 +218,6 @@ class ESN:
         Returns:
             WM x (K + N + WM) matrix: Wmem
         """
-
         H = np.concatenate([U[1:], X[1:], M[:-1]], axis = 1)
         Wmem = np.dot(np.linalg.pinv(H), M[1:]).T
 
@@ -281,15 +278,21 @@ class ESN:
             Y_test[0] = Y[0]
             X_test[0] = X[0]
             for i in tqdm(range(1, T)):
-                X_test[i] = self.x_n1(self.Win, U[i], self.W, X_test[i-1], self.Wb, M[i-1])
-                Y_test[i] = np.dot(Wout, np.concatenate([U[i], X_test[i]]))
+                X_test[i] = self.x_n1(U[i], X_test[i-1], M[i-1])
+                Y_test[i] = np.dot(self.Wout, np.concatenate([U[i], X_test[i]]))
                 #print("M({}) = {}".format(i, M[i]))
                 #print("M_test({}) = {}".format(i, M_test[i]))
 
-            img1 = self.concatenate_imgs(alphascii.image, self.img_WM_units(M))
-            img2 = self.concatenate_imgs(self.img_outputs(Y), self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0]))
-            img3 = self.concatenate_imgs(img2, self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
-            img = self.concatenate_imgs(img1, img3)
+            img = self.concatenate_imgs(alphascii.image, self.img_WM_units(M))
+            img = self.concatenate_imgs(img, self.img_outputs(Y))
+            img = self.concatenate_imgs(img, self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0]))
+            imge = Image.new('L', (min(int(Y_test.shape[0]), 20000), 1))
+            pixels = imge.load()
+            errors = (np.argmax(Y_test, axis = 1) != np.argmax(Y, axis = 1)) & (np.any(np.isfinite(Y), axis = 1))
+            for i in range(min(int(Y_test.shape[0]), 20000)):
+                pixels[i,0] = 255*int(errors[i])
+            img = self.concatenate_imgs(img, imge)
+            img = self.concatenate_imgs(img, self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
             img.show()
             img.save("data/train_Wout_{}fonts.png".format(len(alphascii.fontfiles)))
 
@@ -342,8 +345,10 @@ class ESN:
 
         # Errror counters
         bracket_errors = {"fn": 0, "fp": 0} # Number of false negative and false positive errors
-        errors_m = np.zeros(T) # Store a 1 at index i if there is an error at i
+        errors_m = np.zeros(T) # Stores a 1 at index i if there is an error at i
         errors_y = 0 # Number of output errors
+        errors_y_alphabet = np.zeros(len(alphascii.alphabet)) # Stores the number of errors for each character of the alphabet
+        count_alphabet = np.zeros(len(alphascii.alphabet)) # Stores the number of each character of the alphabet in the sequence
 
         print("TESTING")
         # TO CHANGE ------------
@@ -394,17 +399,28 @@ class ESN:
 
             predictions_m[i] = m_n # We store the value of m
 
-            if np.argmax(y_n) != np.argmax(Y[i]) and not(np.any(np.isnan(Y[i]))): #
-                errors_y += 1
+            if not(np.any(np.isnan(Y[i]))):
+                if np.argmax(y_n) != np.argmax(Y[i]):
+                    errors_y_alphabet[alphascii.find_char_alphabet(alphascii.sequence_pxl[i])] += 1
+                    errors_y += 1
+                count_alphabet[alphascii.find_char_alphabet(alphascii.sequence_pxl[i])] += 1
+
 
             predictions_y[i] = y_n # We store the value of y
             X[i] = x_n
 
 
         img1 = self.concatenate_imgs(alphascii.image, self.img_WM_units(predictions_m, errors_m))
-        img = self.concatenate_imgs(img1, self.img_outputs(predictions_y, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
+        imge = Image.new('L', (min(int(predictions_y.shape[0]), 20000), 1))
+        pixels = imge.load()
+        errors = (np.argmax(predictions_y, axis = 1) != np.argmax(Y, axis = 1)) & (np.any(np.isfinite(Y), axis = 1))
+        for i in range(min(int(predictions_y.shape[0]), 20000)):
+            pixels[i,0] = 255*int(errors[i])
+        img = self.concatenate_imgs(img1, imge)
+        img = self.concatenate_imgs(img, self.img_outputs(predictions_y, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
+        print(np.sum(errors)/alphascii.n_characters)
 
-
+        print(errors_y, alphascii.n_characters)
         errors_y /= alphascii.n_characters # Percentage error of y
 
         if alphascii.mode == "PCA":
@@ -419,8 +435,8 @@ class ESN:
             bracket_errors["fp_per_brackets"] = bracket_errors["fp"]/alphascii.n_brackets
             bracket_errors["fp_per_char"] = bracket_errors["fp"]/alphascii.n_characters
             bracket_errors["fp_per_T"] = bracket_errors["fp"]/T
-            self.print_save_results(bracket_errors, counter, errors_y, U, M, X, img)
-
+            img.show()
+            self.print_save_results(bracket_errors, counter, errors_y, errors_y_alphabet/count_alphabet, U, M, X, alphascii)
 
 
     def x_n1(self, u_n1, x_n, m_n):
@@ -539,6 +555,7 @@ class ESN:
             if np.any(np.isnan(Y[i])) or i in ignore:
                 for j in range(y):
                     pixels[i,j] = 120
+            #DEBUG
             #elif i in ignore:
                 #i = int(i)
                 #for j in range(y):
@@ -578,28 +595,23 @@ class ESN:
         return img
 
 
-    def print_save_results(self, bracket_errors, counter, errors_y, U, M, X, img):
+    def print_save_results(self, bracket_errors, counter, errors_y, errors_y_alphabet, U, M, X, alphascii):
         """
-        Print out results of the testing part
+        Saves and print out results of the testing part
 
         Args:
             bracket_errors (dictionary): Number of errors for curly brackets
-            counter(dictionary): Number of character, increases and decreases of false positive errors per character
-            errors_y = Output errors rate
+            counter (dictionary): Number of character, increases and decreases of false positive errors per character
+            errors_y (int): Output errors rate
+            errors_y_alphabet (array): Output error rate for each character
             U, M, X (matrix): Input, memory and reservoir activations to save
-            img (object): Image to save
+            alphascii (object): testing alphascii object to save
         """
 
-        print("\nGENERATING RESULTS\n")
-        print("Bracket false negative: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fn"], bracket_errors["fn_per_brackets"], bracket_errors["fn_per_char"], bracket_errors["fn_per_T"]))
-        print("Bracket false positive: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fp"], bracket_errors["fp_per_brackets"], bracket_errors["fp_per_char"], bracket_errors["fp_per_T"]))
-        print("\"(\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["("], counter["fp_increase"]["("], counter["fp_decrease"]["("]))
-        print("\")\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"][")"], counter["fp_increase"][")"], counter["fp_decrease"][")"]))
-        print("\"[\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["["], counter["fp_increase"]["["], counter["fp_decrease"]["["]))
-        print("\"]\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["]"], counter["fp_increase"]["]"], counter["fp_decrease"]["]"]))
-        print("\"@\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["@"], counter["fp_increase"]["@"], counter["fp_decrease"]["@"]))
-        print("Other character ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["Other"], counter["fp_increase"]["Other"], counter["fp_decrease"]["Other"]))
-        print("\nOutput error rate: {:.2%}\n".format(errors_y))
+        self.bracket_errors = bracket_errors
+        self.counter = counter
+        self.errors_y = errors_y
+        self.errors_y_alphabet = errors_y_alphabet
 
         # Save values of bracket_errors, counter, errors_y, Wmem and Wout
         json.dump(bracket_errors, open("{}/bracket_errors.json".format(self.dirname), 'w'))
@@ -610,15 +622,35 @@ class ESN:
         np.save("{}/Wb".format(self.dirname), self.Wb)
         np.save("{}/Wmem".format(self.dirname), self.Wmem)
         np.save("{}/Wout".format(self.dirname), self.Wout)
+        np.save("{}/errors_y_alphabet".format(self.dirname), errors_y_alphabet)
 
         np.save("{}/U".format(self.dirname), U)
         np.save("{}/M".format(self.dirname), M)
         np.save("{}/X".format(self.dirname), X)
-        img.save("{}/testing.png".format(self.dirname))
-        img.show()
-        print("Values saved in {}\n".format(self.dirname))
-        print("\nCommand to see results: python3 results.py {}".format(self.dirname))
-        print("\nCommand to see PCA: python3 PCA.py {}\n".format(self.dirname))
+        alphascii.image.save("{}/testing.png".format(self.dirname))
+
+        # Print out results only if ESN.py is the main program
+        if __name__ == "__main__":
+            print("\nGENERATING RESULTS\n")
+            print("Bracket false negative: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fn"], bracket_errors["fn_per_brackets"], bracket_errors["fn_per_char"], bracket_errors["fn_per_T"]))
+            print("Bracket false positive: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fp"], bracket_errors["fp_per_brackets"], bracket_errors["fp_per_char"], bracket_errors["fp_per_T"]))
+            print("\"(\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["("], counter["fp_increase"]["("], counter["fp_decrease"]["("]))
+            print("\")\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"][")"], counter["fp_increase"][")"], counter["fp_decrease"][")"]))
+            print("\"[\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["["], counter["fp_increase"]["["], counter["fp_decrease"]["["]))
+            print("\"]\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["]"], counter["fp_increase"]["]"], counter["fp_decrease"]["]"]))
+            print("\"@\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["@"], counter["fp_increase"]["@"], counter["fp_decrease"]["@"]))
+            print("Other character ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["Other"], counter["fp_increase"]["Other"], counter["fp_decrease"]["Other"]))
+            print("\nOutput error rate: {:.2%}\n".format(errors_y))
+            print("Values saved in {}\n".format(self.dirname))
+            print("\nCommand to see results: python3 results.py {}".format(self.dirname))
+            print("\nCommand to see PCA: python3 PCA.py {}\n".format(self.dirname))
+            print("\nError rate for each character:\n")
+
+            idx = np.argsort(errors_y_alphabet)[::-1]
+            for i in idx:
+                print("{}: {:.2%}".format(alphascii.alphabet[i], errors_y_alphabet[i]))
+
+
 
 
 # ------------------------------------------- #
@@ -628,6 +660,7 @@ class ESN:
 if __name__ == "__main__":
 
     esn = ESN()
+
 
     # Create training dataset for Wmem -> 1st training stage
     train_alphascii_Wmem = Alphascii("Training", esn.train_characters_Wmem, esn.seed)
