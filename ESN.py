@@ -272,7 +272,7 @@ class ESN:
 
         self.Wout = self.compute_Wout(U, X, Y)
 
-        if False and __name__ == "__main__": # Change to True to print results of Wout training
+        if True:# and __name__ == "__main__": # Change to True to print results of Wout training
             Y_test = np.empty((T, self.L))
             X_test = np.empty((T, self.N))
             Y_test[0] = Y[0]
@@ -291,8 +291,8 @@ class ESN:
             errors = (np.argmax(Y_test, axis = 1) != np.argmax(Y, axis = 1)) & (np.any(np.isfinite(Y), axis = 1))
             for i in range(min(int(Y_test.shape[0]), 20000)):
                 pixels[i,0] = 255*int(errors[i])
-            img = self.concatenate_imgs(img, imge)
-            img = self.concatenate_imgs(img, self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
+            imge = self.concatenate_imgs(img, imge)
+            imge = self.concatenate_imgs(img, self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
             img.show()
             img.save("data/train_Wout_{}fonts.png".format(len(alphascii.fontfiles)))
         print("")
@@ -425,7 +425,7 @@ class ESN:
         self.bracket_errors = bracket_errors
         self.counter = counter
         self.errors_y = errors_y
-        self.errors_y_alphabet = errors_y_alphabet
+        self.errors_y_alphabet = errors_y_alphabet/count_alphabet
 
         if alphascii.mode == "PCA":
             self.dirname = "data/PCA/{}".format(font)
