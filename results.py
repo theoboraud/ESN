@@ -5,48 +5,58 @@ Copyright 2019, Theophile BORAUD, Anthony STROCK, All rights reserved.
 """
 
 from PIL import Image
-import json
 import sys
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+import pickle
+from alphascii import Alphascii
+import warnings
+warnings.filterwarnings('ignore', '.*output shape of zoom.*')
 
+# Select font in argument, freemono by default
 if len(sys.argv) > 1:
-    dirname = str(sys.argv[1])
+    font = str(sys.argv[1])
 else:
-    dirname = "data/Classic_Italic_Bold_BoldItalic"
+    font = "freemono"
 
-bracket_errors = json.loads(open("{}/bracket_errors.json".format(dirname)).read())
-counter = json.loads(open("{}/counter.json".format(dirname)).read())
-errors_y = json.loads(open("{}/errors_outputs.json".format(dirname)).read())
-U = np.load("{}/U.npy".format(dirname))
-M = np.load("{}/M.npy".format(dirname))
-X = np.load("{}/X.npy".format(dirname))
-Win = np.load("{}/Win.npy".format(dirname))
-W = np.load("{}/W.npy".format(dirname))
-Wb = np.load("{}/Wb.npy".format(dirname))
-Wmem = np.load("{}/Wmem.npy".format(dirname))
-Wout = np.load("{}/Wout.npy".format(dirname))
-img = Image.open("{}/testing.png".format(dirname))
+dirname = "data/results/{}".format(font)
+bracket_errors = pickle.load(open('{}/bracket_errors.pkl'.format(dirname), 'rb'))
+counter = pickle.load(open("{}/counter.pkl".format(dirname), 'rb'))
+Wmem = pickle.load(open("{}/Wmem.pkl".format(dirname), 'rb'))
+errors_y = pickle.load(open("{}/errors_y.pkl".format(dirname), 'rb'))
+errors_y_alphabet = pickle.load(open("{}/errors_y_alphabet.pkl".format(dirname), 'rb'))
+seed = pickle.load(open("{}/seed.pkl".format(dirname), 'rb'))
 
+# Print out all results
+print("\nResults from directory {}".format(dirname))
 print("")
-print("Results for font(s) FreeMono{}".format(dirname[5:]))
+print("Seed:", seed)
 print("")
-print("Bracket false negative: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fn"], bracket_errors["fn_per_brackets"], bracket_errors["fn_per_char"], bracket_errors["fn_per_T"]))
-print("Bracket false positive: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fp"], bracket_errors["fp_per_brackets"], bracket_errors["fp_per_char"], bracket_errors["fp_per_T"]))
+print("False negatives: {0:.1f} +/- {1:.1f}, {2:.2f} +/- {3:.2f}%, {4:.2f} +/- {5:.3f}%, {6:.3f} +/- {7:.3f}%,".format(np.mean(bracket_errors["fn"]), np.std(bracket_errors["fn"]), np.mean(bracket_errors["fn_per_brackets"]), np.std(bracket_errors["fn_per_brackets"]), np.mean(bracket_errors["fn_per_char"]), np.std(bracket_errors["fn_per_char"]), np.mean(bracket_errors["fn_per_T"]), np.std(bracket_errors["fn_per_T"])))
+print("False positives: {0:.1f} +/- {1:.1f}, {2:.2f} +/- {3:.2f}%, {4:.2f} +/- {5:.3f}%, {6:.3f} +/- {7:.3f}%,".format(np.mean(bracket_errors["fp"]), np.std(bracket_errors["fp"]), np.mean(bracket_errors["fp_per_brackets"]), np.std(bracket_errors["fp_per_brackets"]), np.mean(bracket_errors["fp_per_char"]), np.std(bracket_errors["fp_per_char"]), np.mean(bracket_errors["fp_per_T"]), np.std(bracket_errors["fp_per_T"])))
+print("Total: {0:.1f} +/- {1:.1f}, {2:.2f} +/- {3:.2f}%, {4:.2f} +/- {5:.3f}%, {6:.3f} +/- {7:.3f}%,".format(np.mean(bracket_errors["fn"] + bracket_errors["fp"]), np.std(bracket_errors["fn"] + bracket_errors["fp"]), np.mean(bracket_errors["fn_per_brackets"] + bracket_errors["fp_per_brackets"]), np.std(bracket_errors["fn_per_brackets"] + bracket_errors["fp_per_brackets"]), np.mean(bracket_errors["fn_per_char"] + bracket_errors["fp_per_char"]), np.std(bracket_errors["fn_per_char"] + bracket_errors["fp_per_char"]), np.mean(bracket_errors["fn_per_T"] + bracket_errors["fp_per_T"]), np.std(bracket_errors["fn_per_T"] + bracket_errors["fp_per_T"])))
 print("")
-print("\"(\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["("], counter["fp_increase"]["("], counter["fp_decrease"]["("]))
-print("\")\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"][")"], counter["fp_increase"][")"], counter["fp_decrease"][")"]))
-print("\"[\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["["], counter["fp_increase"]["["], counter["fp_decrease"]["["]))
-print("\"]\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["]"], counter["fp_increase"]["]"], counter["fp_decrease"]["]"]))
-print("\"@\" ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["@"], counter["fp_increase"]["@"], counter["fp_decrease"]["@"]))
-print("Other character ({} times in sequence): increased {} times and decreased {} times".format(counter["character"]["Other"], counter["fp_increase"]["Other"], counter["fp_decrease"]["Other"]))
+
+print("\"(\" ({0:.1f} +/- {1:.1f}): increases {2:.2f} +/- {3:.2f}, decreases {4:.1f} +/- {5:.1f}".format(np.mean(counter["character"]["("]), np.std(counter["character"]["("]), np.mean(counter["fp_increase"]["("]), np.std(counter["fp_increase"]["("]), np.mean(counter["fp_decrease"]["("]), np.std(counter["fp_decrease"]["("])))
+print("\")\" ({0:.1f} +/- {1:.1f}): increases {2:.2f} +/- {3:.2f}, decreases {4:.1f} +/- {5:.1f}".format(np.mean(counter["character"][")"]), np.std(counter["character"][")"]), np.mean(counter["fp_increase"][")"]), np.std(counter["fp_increase"][")"]), np.mean(counter["fp_decrease"][")"]), np.std(counter["fp_decrease"][")"])))
+print("\"[\" ({0:.1f} +/- {1:.1f}): increases {2:.2f} +/- {3:.2f}, decreases {4:.1f} +/- {5:.1f}".format(np.mean(counter["character"]["["]), np.std(counter["character"]["["]), np.mean(counter["fp_increase"]["["]), np.std(counter["fp_increase"]["["]), np.mean(counter["fp_decrease"]["["]), np.std(counter["fp_decrease"]["["])))
+print("\"]\" ({0:.1f} +/- {1:.1f}): increases {2:.2f} +/- {3:.2f}, decreases {4:.1f} +/- {5:.1f}".format(np.mean(counter["character"]["]"]), np.std(counter["character"]["]"]), np.mean(counter["fp_increase"]["]"]), np.std(counter["fp_increase"]["]"]), np.mean(counter["fp_decrease"]["]"]), np.std(counter["fp_decrease"]["]"])))
+print("\"@\" ({0:.1f} +/- {1:.1f}): increases {2:.2f} +/- {3:.2f}, decreases {4:.1f} +/- {5:.1f}".format(np.mean(counter["character"]["@"]), np.std(counter["character"]["@"]), np.mean(counter["fp_increase"]["@"]), np.std(counter["fp_increase"]["@"]), np.mean(counter["fp_decrease"]["@"]), np.std(counter["fp_decrease"]["@"])))
+print("\"Other\" ({0:.1f} +/- {1:.1f}): increases {2:.2f} +/- {3:.2f}, decreases {4:.1f} +/- {5:.1f}".format(np.mean(counter["character"]["Other"]), np.std(counter["character"]["Other"]), np.mean(counter["fp_increase"]["Other"]), np.std(counter["fp_increase"]["Other"]), np.mean(counter["fp_decrease"]["Other"]), np.std(counter["fp_decrease"]["Other"])))
 print("")
-print("Output error rate: {:.2%}".format(errors_y))
+
+print("Input to WM-units average weights: {0:.4f} +/- {1:.4f}".format(np.mean(np.abs(Wmem[:, :, :14])), np.std(np.abs(Wmem[:, :, :14]))))
+print("Reservoir to WM-units average weights: {0:.4f} +/- {1:.4f}".format(np.mean(np.abs(Wmem[:, :, 14:1214])), np.std(np.abs(Wmem[:, :, 14:1214]))))
+print("WM-units to WM-units average weights: {0:.4f} +/- {1:.4f}".format(np.mean(np.abs(Wmem[:, :, 1214:])), np.std(np.abs(Wmem[:, :, 1214:]))))
 print("")
-print("Average input to WM-units weights: {}".format(np.mean(np.abs(Wmem[:, :13]))))
-print("Average reservoir to WM-units weights: {}".format(np.mean(np.abs(Wmem[:, 13:1213]))))
-print("Average WM-units to WM-units weights: {}".format(np.mean(np.abs(Wmem[:, 1213:]))))
-print("")
-img.show()
+
+alphabet = Alphascii("Training", 1, seed = 0).alphabet
+print("10 biggest error rate per character: ")
+idx = np.argsort(np.mean(errors_y_alphabet, axis = 0))[::-1]
+for i in idx:
+    if i < 10:
+        print("{}: {:.2%} +/- {:.2%}".format(alphabet[i], np.mean(errors_y_alphabet[:,i]), np.std(errors_y_alphabet[:,i])))
+
+print("\nErrors output: {0:.2%} +/- {1:.2%}\n".format(np.mean(errors_y), np.std(errors_y)))

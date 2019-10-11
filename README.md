@@ -11,10 +11,10 @@ This model is described in further details in [ReScience replication](LINK)).
 ## How to use it
 
 The model has been split into multiple subfiles, for it to be modular and easily modifiable.
-The first and most important file is *ESN.py*, which contains all the architecture of the model. When launched, it trains the working memory units and the output weights, and tests them, printing out their error rates and other feedbacks (see the ReScience article for further details about testing). It uses some given fonts with a random seed, which can be modifiable (and retested) if needed. The test is only done one time. For more instances, see *main.py*. The following command can be used to test the network:
+The first and most important file is *ESN.py*, which contains all the architecture of the model. When launched, it trains the working memory units and the output weights, and tests them, printing out their error rates and other feedbacks (see the ReScience article for further details about testing). It uses some given fonts with a random seed, which can be modifiable (and retested) if needed. The test is only done one time. For more instances, see *main.py*. The following command can be used to test the network with one instance:
 
 ```bash
-    python3 ESN.py
+    python ESN.py
 ```
 
 If you want to modify the different variables defining the weights dimensions, characteristics and/or training time of the network, feel free to modify them in the beginning of the file:
@@ -62,4 +62,4 @@ Whenever a curly bracket is opened, the bracket level increases by one, up to 6.
 When a symbol is picked up, its actual value is also randomly chosen. 80% of the time, for a given character *i* and a bracket level *j*, the next character will be *i* + *j* + 1 modulo 65 (size of *self.alphabet*).
 The other 20% of the time, the character will be randomly chosen among the 64 other possible characters.
 
-Finally, the sequence is converted to an image, using *convert_sequence_to_img()*, creating a sub-image matrix for each character, with a random font from the given *fontfiles* at the beginning of the file. Every character image has a size of 12 and a width of 7, and is then reshaped into an image with a width of 6, 7 or 8 (randomly), with finally a salt-and-pepper Gaussian noise of amplitude 0,1 applied on all of them, with a probability of 0,1.
+Finally, the sequence is converted to an image, using *convert_sequence_to_img()*, creating a sub-image matrix for each character, with a random font from the given *fontfiles* at the beginning of the file. Every character image has a size of 12 and a width of 7, and is then reshaped into an image with a width of 6, 7 or 8 (randomly), with finally a salt-and-pepper Gaussian noise of amplitude 0.1 applied on all of them.

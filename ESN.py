@@ -14,7 +14,6 @@ from PIL import Image
 import sys
 import warnings
 import json
-import os
 warnings.filterwarnings('ignore', '.*output shape of zoom.*')
 
 
@@ -31,7 +30,7 @@ class ESN:
 # ------------------------------------------- #
 
 
-    def __init__(self):
+    def __init__(self, font = "freemono", seed = None):
         """
         Constructor of the ESN class
 
@@ -41,11 +40,15 @@ class ESN:
         Returns:
             ESN object
         """
-        # Set seed for whole network
-        self.seed = self.set_seed()
 
-        # Set the directory name in which all important data will be saved
-        self.dirname = ""
+        # Set the font, freemono by default
+        self.font = font
+
+        # Set seed for whole network
+        self.seed = self.set_seed(seed)
+
+        # Set directory name to save data
+        self.dirname = "data/test/" + self.font
 
         # Training times
         self.train_characters_Wmem = int(10000) # Only Wmem is computed -> 10000 characters sequence
@@ -75,25 +78,37 @@ class ESN:
         self.Wb = np.random.choice((-0.4, 0.4), (self.N, self.WM)) # Feedback weight matrix
         self.Wmem = np.empty((self.WM, (self.K + self.N + self.WM)))
         self.Wout = np.empty((self.L, (self.K + self.N)))
+
+        # Create training dataset for Wmem -> 1st training stage
+        self.train_alphascii_Wmem = Alphascii("Training", self.train_characters_Wmem, seed = self.seed + 1, font = self.font)
+        # Create training dataset for Wout -> 2nd training stage
+        self.train_alphascii_Wout = Alphascii("Training", self.train_characters_Wout, seed = self.seed + 2, font = self.font)
+        # Create testing dataset -> testing stage
+        self.test_alphascii = Alphascii("Testing", self.test_characters, seed = self.seed + 3, font = self.font)
+
         print("")
 
 
-    def set_seed(self):
+    def set_seed(self, seed):
         """
         Create the seed (for random values) variable if none has been declared in sys.argv
+
+        Args:
+            int: Seed in main args
 
         Returns:
             int: Seed
         """
 
-        if len(sys.argv) > 1:
+        if len(sys.argv) > 1 and __name__ == "__main__":
             seed = int(sys.argv[1])
-        else:
+        elif seed == None:
             import time
             seed = int((time.time()*10**6) % 4294967295)
         try:
             np.random.seed(seed)
-            print("Seed:", seed)
+            if __name__ == "__main__":
+                print("Seed:", seed)
         except:
             print("!!! WARNING !!!: ESN seed was not set correctly.")
         return seed
@@ -145,26 +160,18 @@ class ESN:
         return new_data
 
 
-    def train_Wmem(self, alphascii):
+    def train_Wmem(self):
         """
         First training stage, where the reservoir-to-WM-units weights (Wmem) are computed
-
-        Args:
-            alphascii (object): Training Alphascii object
 
         Returns:
             WM x (K + N + WM) matrix: Wmem
         """
 
+        alphascii = self.train_alphascii_Wmem
         U = self.add_bias(alphascii.data, self.U_bias) # Inputs (T x K matrix)
         M = alphascii.bracket_lvl_outputs # Target of WM-units (T x WM matrix)
         T = len(U) # Training time (int)
-
-        # Update directory name to save data
-        self.dirname = "data/" + alphascii.fontstring
-        if not os.path.exists(self.dirname):
-            os.mkdir(self.dirname)
-            print("Directory" , self.dirname ,  "created ")
 
         # Compute a random x_n at first
         x_n = np.zeros(self.N)
@@ -187,9 +194,8 @@ class ESN:
             m_n = M[i]
 
         self.Wmem = self.compute_Wmem(U, X, M)
-        print("")
 
-        if False: # Change to True to print Wmem training
+        if False and __name__ == "__main__": # Change to True to print Wmem training
             M_test = np.empty((T, self.WM))
             X_test = np.empty((T, self.N))
             M_test[0] = M[0]
@@ -204,7 +210,7 @@ class ESN:
             img = self.concatenate_imgs(img1, self.img_WM_units(M_test))
             img.show()
             img.save("data/train_Wmem_{}fonts.png".format(len(alphascii.fontfiles)))
-
+        print("")
 
 
     def compute_Wmem(self, U, X, M):
@@ -227,18 +233,15 @@ class ESN:
         return Wmem
 
 
-    def train_Wout(self, alphascii):
+    def train_Wout(self):
         """
         Second training stage, where reservoir to output weights (Wout) are computed
-
-        Args:
-            alphascii (object): Training Alphascii object
-            Wmem (WM x (K + N + WM)): Reservoir to WM-units weights
 
         Returns:
             L x (K + N) matrix: Wout
         """
 
+        alphascii = self.train_alphascii_Wout
         U = self.add_bias(alphascii.data, self.U_bias)# Inputs activations during time T (T x K matrix)
         M = alphascii.bracket_lvl_outputs # Target of WM-units (T x WM matrix)
         Y = alphascii.sequence_outputs # Target output activations during time T (T x L matrix)
@@ -264,16 +267,12 @@ class ESN:
             # Store x(n+1) into X
             X[i] = x_n
 
-            m_n = self.m_n1(u_n1, x_n, m_n)
-            M[i] = m_n
+            #m_n = self.m_n1(u_n1, x_n, m_n)
+            #M[i] = m_n
 
         self.Wout = self.compute_Wout(U, X, Y)
-        np.save("{}/U".format(self.dirname), U)
-        np.save("{}/M".format(self.dirname), M)
-        np.save("{}/X".format(self.dirname), X)
-        print("")
 
-        if False: # Change to 1 to print results of Wout training
+        if False and __name__ == "__main__": # Change to True to print results of Wout training
             Y_test = np.empty((T, self.L))
             X_test = np.empty((T, self.N))
             Y_test[0] = Y[0]
@@ -296,7 +295,7 @@ class ESN:
             img = self.concatenate_imgs(img, self.img_outputs(Y_test, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
             img.show()
             img.save("data/train_Wout_{}fonts.png".format(len(alphascii.fontfiles)))
-
+        print("")
 
 
     def compute_Wout(self, U, X, Y):
@@ -321,14 +320,12 @@ class ESN:
         return Wout
 
 
-    def test(self, alphascii):
+    def test(self):
         """
         Testing part
-
-        Args:
-            alphascii (object): Testing Alphascii object
         """
 
+        alphascii = self.test_alphascii
         U = self.add_bias(alphascii.data, self.U_bias)# Inputs activations during time T (T x K matrix)
         M = alphascii.bracket_lvl_outputs # Target WM-units during time T (T x WM)
         Y = alphascii.sequence_outputs # Target outputs during time T (T x L)
@@ -338,7 +335,7 @@ class ESN:
         x_n = np.zeros(self.N)
         m_n = np.ones(self.WM) * -0.5
 
-        # Store all values of predicted m and y
+        # Store all values of predicted memory states, outputs and reservoir activations
         predictions_m = np.empty((T, self.WM))
         predictions_y = np.empty((T, self.L))
         X = np.empty((T, self.N))
@@ -419,12 +416,19 @@ class ESN:
             pixels[i,0] = 255*int(errors[i])
         img = self.concatenate_imgs(img1, imge)
         img = self.concatenate_imgs(img, self.img_outputs(predictions_y, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
-        print(np.sum(errors)/alphascii.n_characters)
 
-        print(errors_y, alphascii.n_characters)
+        # DEBUG
+        #print(np.sum(errors)/alphascii.n_characters)
+        #print(errors_y, alphascii.n_characters)
+
         errors_y /= alphascii.n_characters # Percentage error of y
+        self.bracket_errors = bracket_errors
+        self.counter = counter
+        self.errors_y = errors_y
+        self.errors_y_alphabet = errors_y_alphabet
 
         if alphascii.mode == "PCA":
+            self.dirname = "data/PCA/{}".format(font)
             return (U, X)
 
         # Print results
@@ -436,8 +440,10 @@ class ESN:
             bracket_errors["fp_per_brackets"] = bracket_errors["fp"]/alphascii.n_brackets
             bracket_errors["fp_per_char"] = bracket_errors["fp"]/alphascii.n_characters
             bracket_errors["fp_per_T"] = bracket_errors["fp"]/T
-            img.show()
             self.print_save_results(bracket_errors, counter, errors_y, errors_y_alphabet/count_alphabet, U, M, X, alphascii)
+            #if __name__ == "__main__": # Change to True to print out results
+                #img.show() DEBUG
+
 
 
     def x_n1(self, u_n1, x_n, m_n):
@@ -609,11 +615,6 @@ class ESN:
             alphascii (object): testing alphascii object to save
         """
 
-        self.bracket_errors = bracket_errors
-        self.counter = counter
-        self.errors_y = errors_y
-        self.errors_y_alphabet = errors_y_alphabet
-
         # Save values of bracket_errors, counter, errors_y, Wmem and Wout
         json.dump(bracket_errors, open("{}/bracket_errors.json".format(self.dirname), 'w'))
         json.dump(counter, open("{}/counter.json".format(self.dirname), 'w'))
@@ -629,8 +630,6 @@ class ESN:
         np.save("{}/M".format(self.dirname), M)
         np.save("{}/X".format(self.dirname), X)
         alphascii.image.save("{}/testing.png".format(self.dirname))
-
-        # Print out results only if ESN.py is the main program
         if __name__ == "__main__":
             print("\nGENERATING RESULTS\n")
             print("Bracket false negative: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fn"], bracket_errors["fn_per_brackets"], bracket_errors["fn_per_char"], bracket_errors["fn_per_T"]))
@@ -652,8 +651,6 @@ class ESN:
                 print("{}: {:.2%}".format(alphascii.alphabet[i], errors_y_alphabet[i]))
 
 
-
-
 # ------------------------------------------- #
 # ----------------- TESTING ----------------- #
 # ------------------------------------------- #
@@ -662,18 +659,11 @@ if __name__ == "__main__":
 
     esn = ESN()
 
-
-    # Create training dataset for Wmem -> 1st training stage
-    train_alphascii_Wmem = Alphascii("Training", esn.train_characters_Wmem, esn.seed)
     # Training Wmem
-    esn.train_Wmem(train_alphascii_Wmem)
+    esn.train_Wmem()
 
-    # Create training dataset for Wout -> 2nd training stage
-    train_alphascii_Wout = Alphascii("Training", esn.train_characters_Wout, esn.seed + 1)
     # Training Wout
-    esn.train_Wout(train_alphascii_Wout)
+    esn.train_Wout()
 
-    # Create testing dataset -> testing stage
-    test_alphascii = Alphascii("Testing", esn.test_characters, esn.seed + 2)
     # Testing the ESN
-    esn.test(test_alphascii)
+    esn.test()

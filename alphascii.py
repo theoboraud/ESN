@@ -4,7 +4,6 @@ t.boraud@warwick.co.uk
 Copyright 2019, Theophile BORAUD, Anthony STROCK, All rights reserved.
 """
 
-import random
 import numpy as np
 import math
 from PIL import Image
@@ -13,6 +12,8 @@ from PIL import ImageDraw
 import freetype as ft
 import scipy.ndimage
 import sys
+import warnings
+warnings.filterwarnings('ignore', '.*output shape of zoom.*')
 
 
 
@@ -29,21 +30,26 @@ class Alphascii:
 # ------------------------------------------- #
 
 
-    def __init__(self, mode, size, seed = None, set_i = 0):
+    def __init__(self, mode, size, seed = None, set_i = 0, font = "freemono"):
         """
         Constructor function
 
         Args:
             mode (string): Mode for the sequence generation ("Training" or "Testing")
             size (int): Number of characters in the sequence
+            set_i (int): Memory number for PCA inputs
+            seed (int): Seed value for random generation
+            font (string): Font file to use for input generation
 
         Returns:
             Alphascii object
         """
 
-        self.seed = self.set_seed(seed)
-        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€|[]§" # The sequence is build using random characters from the alphabet
+        # Fontfile used for input generation (select "freemono" or "inconsolata")
+        self.font = font
 
+        self.seed = self.set_seed(seed)
+        self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&'()*+,.-_/:;<=>?@|€[]§" # The sequence is build using random characters from the alphabet
         inconsolata =  {"Inconsolata" : "data/font/Inconsolata-Regular.ttf",
                         "InconsolataBold" : "data/font/Inconsolata-Bold.ttf"}
 
@@ -53,13 +59,17 @@ class Alphascii:
                         "RobotoBoldItalic" : "data/font/Roboto-BoldItalic.ttf"}
 
         freemono =     {"Classic" : "data/font/FreeMono.ttf",
-                        "Oblique" : "data/font/FreeMonoOblique.ttf"}
-                        #"Bold" : "data/font/FreeMonoBold.ttf",
-                        #"BoldOblique" : "data/font/FreeMonoBoldOblique.ttf"}
+                        "Oblique" : "data/font/FreeMonoOblique.ttf",
+                        "Bold" : "data/font/FreeMonoBold.ttf",
+                        "BoldOblique" : "data/font/FreeMonoBoldOblique.ttf"}
 
-        self.fontfiles = roboto
+        if self.font == "inconsolata":
+            self.fontfiles = inconsolata
+        elif self.font == "freemono":
+            self.fontfiles = freemono
+        else:
+            print("ERROR: No fontfile selected.")
 
-        self.fontstring = "_".join(self.fontfiles.keys()) # Name of the directory using the fonts useds
         self.mode = mode
         self.bracket_lvl_max = 6 # Maximum curly bracket level
         self.bracket_lvl = np.empty(size, dtype = np.int64) # WM-units
@@ -68,7 +78,7 @@ class Alphascii:
         self.sequence = self.random_sequence(mode, size, set_i) # Character sequence built from characters in self.alphabet or curly brackets
         self.n_brackets = self.sequence.count("{") + self.sequence.count("}") # Number of curly brackets into the sequence
         self.n_characters = len(self.sequence) - self.n_brackets # Number of characters other than curly brackets into the sequence
-        self.data, self.image = self.convert_sequence_to_img(self.sequence)
+        self.data, self.image = self.convert_sequence_to_img(self.sequence, zmin = 1, zmax = 1)
         self.sequence_pxl = self.get_sequence_pxl() # Characters for each pixel column in the sequence
         self.bracket_lvl_outputs = self.compute_bracket_lvl_outputs() #
         self.sequence_outputs = self.compute_target_outputs()
@@ -107,15 +117,14 @@ class Alphascii:
         Returns:
             string: Sequence generated
         """
-        temp = 0   ######### DELETE THIS ############
         n_char = 0
         sequence = "" # Store the sequence of characters
         i = 0 # bracket level of curly brackets
-        j = random.randint(0, 65) # Current character index
+        j = np.random.randint(0, len(self.alphabet)) # Current character index
         if mode == "Training":
             p_bracket = 0.15
         elif mode == "Testing":
-            p_bracket = 0.06
+            p_bracket = 0.03
         elif mode == "PCA":
             p_bracket = 0 # No curly brackets
             i = set_i
@@ -196,7 +205,7 @@ class Alphascii:
         return (Z.T, img)
 """
 
-    def convert_sequence_to_img(self, text, size=11, zmin=1.1, zmax=1.1, add_kerning=False):
+    def convert_sequence_to_img(self, text, size=12, zmin=1.0, zmax=1.0, add_kerning=False):
         """
         Generate a noisy bitmap string of text using different fonts
 
@@ -212,6 +221,14 @@ class Alphascii:
                 I is a unidimensional numpy array that indicates the corresponding
            character for each column of Z
         """
+
+        # Set size to correspond to font
+        if self.font == "inconsolata":
+            zmin = 1.0
+            zmax = 8/6
+        elif self.font == "freemono":
+            zmin = 6/7
+            zmax = 8/7
 
         # Load fonts
         fonts = self.fontfiles.values()
@@ -240,7 +257,7 @@ class Alphascii:
             index = font_index[i]
             zoom = zoom_level[i]
             face, slot = faces[index], slots[index]
-            face.load_char(c, ft.FT_LOAD_RENDER | ft.FT_LOAD_FORCE_AUTOHINT)
+            face.load_char(c) #, ft.FT_LOAD_RENDER | ft.FT_LOAD_FORCE_AUTOHINT)
 
             bitmap = slot.bitmap
             kerning = face.get_kerning(previous, c).x >> 6
@@ -268,7 +285,7 @@ class Alphascii:
             index = font_index[i]
             zoom = zoom_level[i]
             face, slot = faces[index], slots[index]
-            face.load_char(c, ft.FT_LOAD_RENDER | ft.FT_LOAD_FORCE_AUTOHINT)
+            face.load_char(c)#, ft.FT_LOAD_RENDER | ft.FT_LOAD_FORCE_AUTOHINT)
 
             bitmap = slot.bitmap
             top, left = slot.bitmap_top, slot.bitmap_left
@@ -301,6 +318,7 @@ class Alphascii:
             self.width_total += advance
 
         # Adjust shape if height too large
+
         if Z.shape[0]>12:
             Z = Z[Z.shape[0] - 12:,:]
 
@@ -313,7 +331,7 @@ class Alphascii:
         return (Z/255.0).T, img
 
 
-    def salt_pepper(self, data, p = 0.1, x = 0.1):
+    def salt_pepper(self, data, p = 1, x = 0.1):
         """
         Add salt and pepper noise to the given data
 
@@ -367,6 +385,7 @@ class Alphascii:
 
         target_outputs = np.nan * np.zeros((self.width_total, len(self.alphabet)))
         current_pixel = 0 #-1
+        bracket_level = 0
 
         for i in range(len(self.sequence)):
             if current_pixel < (self.width_total - self.width_chars[len(self.sequence) - 1]):
@@ -377,12 +396,20 @@ class Alphascii:
             mid_char = math.ceil(self.width_chars[i]/2)
             current_pixel += mid_char
 
-            if current_char != "{" and current_char != "}":
+            if current_char == "{":
+                bracket_level += 1
+            elif current_char == "}":
+                bracket_level -= 1
+            else:
                 target_outputs[current_pixel] = 0
+                if next_char == "{" or next_char == "}":
+                    next_char = self.alphabet[(bracket_level + self.alphabet.index(current_char) + 1) % len(self.alphabet)]
                 for j in range(len(self.alphabet)):
                     if next_char == self.alphabet[j]:
                         target_outputs[current_pixel, j] = 1
             current_pixel += (self.width_chars[i] - mid_char)
+
+
 
     #def compute_target_outputs(self):
         """
@@ -390,7 +417,8 @@ class Alphascii:
         Returns:
             width_total x bracket_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
         """
-        """target_outputs = np.nan * np.zeros((self.width_total, len(self.alphabet)))
+        """
+        target_outputs = np.nan * np.zeros((self.width_total, len(self.alphabet)))
         current_pixel = 0 #-1
         bracket_level = 0
 
@@ -415,8 +443,8 @@ class Alphascii:
                     if next_char == self.alphabet[j]:
                         target_outputs[current_pixel, j] = 1
 
-            current_pixel += (self.width_chars[i] - mid_char)"""
-
+            current_pixel += (self.width_chars[i] - mid_char)
+            """
 
     def get_sequence_pxl(self):
         """
@@ -457,9 +485,11 @@ class Alphascii:
 # ------------------------------------------- #
 
 if __name__ == "__main__":
-    alphascii = Alphascii("Training", 100, set_i = 0)
+    alphascii = Alphascii("Training", 100, set_i = 0, font = "freemono")
     print("")
     print(alphascii.sequence)
+    print("")
+    print("All font sizes: {}".format(np.unique(alphascii.width_chars)))
     print("")
     print(alphascii.sequence_outputs.shape)
     alphascii.image.show()
