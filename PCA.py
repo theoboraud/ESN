@@ -15,35 +15,38 @@ from ESN import ESN
 from alphascii import Alphascii
 import matplotlib.cm as cm
 
+font = ""
 if len(sys.argv) > 1:
-    dirname = str(sys.argv[1])
+    font = str(sys.argv[1])
 else:
-    dirname = "data/Classic_Oblique_Bold_BoldOblique" #/without_M"
+    font = "freemono"
+
+dirname = "data/test/{}".format(font)
 
 files = ("{}/PC_X.npy".format(dirname), "{}/PC_U.npy".format(dirname), "{}/lenght_x.npy".format(dirname))
 
 # Generate data only if not already generated. Delete every file in files list to be able to generate new data
 if not np.all([os.path.exists(file) for file in files]):
 
-    jaeger = ESN()
+    esn = ESN()
 
-    jaeger.Win = np.load("{}/Win.npy".format(dirname))
-    jaeger.W = np.load("{}/W.npy".format(dirname))
-    jaeger.Wb = np.load("{}/Wb.npy".format(dirname))
-    jaeger.Wmem = np.load("{}/Wmem.npy".format(dirname))
-    jaeger.Wout = np.load("{}/Wout.npy".format(dirname))
+    esn.Win = np.load("{}/Win.npy".format(dirname))
+    esn.W = np.load("{}/W.npy".format(dirname))
+    esn.Wb = np.load("{}/Wb.npy".format(dirname))
+    esn.Wmem = np.load("{}/Wmem.npy".format(dirname))
+    esn.Wout = np.load("{}/Wout.npy".format(dirname))
 
     print("\nGenerating data...")
     lenght_x = np.empty(7, dtype = np.int)
     for i in range(7):
         print("\n------ Memory: {} ------".format(i))
-        alphascii = Alphascii("PCA", 6500, seed = jaeger.seed + i, set_i = i)
+        alphascii = Alphascii("PCA", 6500, seed = esn.seed + i, set_i = i)
 
         if i == 0:
-            U, X = jaeger.test(alphascii)
+            U, X = esn.test(alphascii)
             lenght_x[i] = int(X.shape[0])
         else:
-            u, x = jaeger.test(alphascii)
+            u, x = esn.test(alphascii)
             U = np.append(U, u, axis = 0)
             X = np.append(X, x, axis = 0)
 

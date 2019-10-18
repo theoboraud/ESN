@@ -30,6 +30,7 @@ errors_y_alphabet = pickle.load(open("{}/errors_y_alphabet.pkl".format(dirname),
 seed = pickle.load(open("{}/seed.pkl".format(dirname), 'rb'))
 
 # Print out all results
+print("\n------- RESULTS FOR 30 INSTANCES IN MAIN.PY -------\n")
 print("\nResults from directory {}".format(dirname))
 print("")
 print("Seed:", seed)

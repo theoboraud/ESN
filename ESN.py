@@ -320,12 +320,13 @@ class ESN:
         return Wout
 
 
-    def test(self):
+    def test(self, alphascii = None):
         """
         Testing part
         """
 
-        alphascii = self.test_alphascii
+        if alphascii == None:
+            alphascii = self.test_alphascii
         U = self.add_bias(alphascii.data, self.U_bias)# Inputs activations during time T (T x K matrix)
         M = alphascii.bracket_lvl_outputs # Target WM-units during time T (T x WM)
         Y = alphascii.sequence_outputs # Target outputs during time T (T x L)
@@ -421,26 +422,28 @@ class ESN:
         #print(np.sum(errors)/alphascii.n_characters)
         #print(errors_y, alphascii.n_characters)
 
+        # Compute results
         errors_y /= alphascii.n_characters # Percentage error of y
         self.bracket_errors = bracket_errors
         self.counter = counter
         self.errors_y = errors_y
         self.errors_y_alphabet = errors_y_alphabet/count_alphabet
 
+
         if alphascii.mode == "PCA":
-            self.dirname = "data/PCA/{}".format(font)
+            self.dirname = "data/PCA/{}".format(self.font)
             return (U, X)
 
         # Print results
         if alphascii.mode != "PCA":
-            # Compute results
             bracket_errors["fn_per_brackets"] = bracket_errors["fn"]/alphascii.n_brackets
             bracket_errors["fn_per_char"] = bracket_errors["fn"]/alphascii.n_characters
             bracket_errors["fn_per_T"] = bracket_errors["fn"]/T
             bracket_errors["fp_per_brackets"] = bracket_errors["fp"]/alphascii.n_brackets
             bracket_errors["fp_per_char"] = bracket_errors["fp"]/alphascii.n_characters
             bracket_errors["fp_per_T"] = bracket_errors["fp"]/T
-            self.print_save_results(bracket_errors, counter, errors_y, errors_y_alphabet/count_alphabet, U, M, X, alphascii)
+            if __name__ == "__main__":
+                self.print_save_results(bracket_errors, counter, errors_y, errors_y_alphabet/count_alphabet, U, M, X, alphascii)
             #if __name__ == "__main__": # Change to True to print out results
                 #img.show() DEBUG
 

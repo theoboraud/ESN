@@ -1,3 +1,4 @@
+
 # ESN
 
 This model is a replication of the Working Memory (WM) model using a Recurrent Neural Network (RNN) of the Echo State Network (ESN) type used by Razvan Pascanu and Herbert Jaeger in ["A Neurodynamical Model for Working Memory"](https://www.sciencedirect.com/science/article/pii/S0893608010001899) for [The ReScience Journal](http://rescience.github.io/).
@@ -50,7 +51,7 @@ If you want to modify the different variables defining the weights dimensions, c
     self.Wout = np.empty((self.L, (self.K + self.N)))
 ```
 
-The second important file is *alphascii.py*, which contains the input generation method. It generates a random generated sequence of characters picked from a dataset of symbol called *self.alphabet*, separated sometimes with curly brackets, determined by some rules.
+The second important file is *alphascii.py*, which contains the input generation method, using an alphabet of ASCII symbols. It generates a random generated sequence of characters picked from a dataset of symbol called *self.alphabet*, separated sometimes with curly brackets, determined by some rules.
 
 ```python
     self.alphabet = "abcdefghijklmnopqrstuvwxyz0123456789 !\"#$%&\'()*+,.-_/:;<=>?@€|[]§" # The sequence is build using random characters from the alphabet
@@ -63,3 +64,35 @@ When a symbol is picked up, its actual value is also randomly chosen. 80% of the
 The other 20% of the time, the character will be randomly chosen among the 64 other possible characters.
 
 Finally, the sequence is converted to an image, using *convert_sequence_to_img()*, creating a sub-image matrix for each character, with a random font from the given *fontfiles* at the beginning of the file. Every character image has a size of 12 and a width of 7, and is then reshaped into an image with a width of 6, 7 or 8 (randomly), with finally a salt-and-pepper Gaussian noise of amplitude 0.1 applied on all of them.
+
+You can easily test this class by using the following command:
+
+```bash
+    python alphascii.py
+```
+
+In order to obtain similar results as in the former article, we need to initialize and test the network 30 times in a row, and then display the results. To do so, we use *main.py*, which will create 30 instances of *ESN* objects and compute their average results. When calling this class, we can either use the *FreeMono* or *Inconsolata* font files to choose which font to use. It will then be saved in the corresponding directory in *data/results/<FONTNAME>*.
+
+To compute those 30 instances of *ESN*, use the following command (with either *freemono* or *inconsolata* as argument, or nothing to select *freemono* by default):
+
+```bash
+    python main.py inconsolata
+```
+
+Note that you can also use a seed as second argument.
+
+```bash
+    python main.py inconsolata 1639617780
+```
+
+To be able to print out those same results back again, just use the *results.py* program, using the same argument (*freemono* by default).
+
+```bash
+    python results.py inconsolata
+```
+
+Finally, you can use the program *PCA.py* to compute the PCA and then display the attractors corresponding to each memory states. If the results are already computed, the program will not create new ones, so you need to delete the old ones in *data/PCA/* if you want to start again with new results. To use it, use:
+
+```bash
+    python PCA.py
+```
