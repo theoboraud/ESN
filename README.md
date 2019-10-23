@@ -91,7 +91,7 @@ To be able to print out those same results back again, just use the *results.py*
     python results.py inconsolata
 ```
 
-Finally, you can use the program *PCA.py* to compute the PCA and then display the attractors corresponding to each memory states. If the results are already computed, the program will not create new ones, so you need to delete the old ones in *data/PCA/* if you want to start again with new results. To use it, use:
+Finally, you can use the program *PCA.py* to compute the Principal Component Analysis (PCA) and then display the attractors corresponding to each memory states. If the results are already computed, the program will not create new ones, so you need to delete the old ones in *data/PCA/* if you want to start again with new results. To launch the PCA, use:
 
 ```bash
     python PCA.py
