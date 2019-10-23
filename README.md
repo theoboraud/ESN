@@ -7,7 +7,7 @@ This model is based from the article, and was built from scratch in Python3 to b
 
 ## Description of the model
 
-This model is described in further details in [ReScience replication](LINK)).
+This model is described in further details in the [ReScience replication article](LINK).
 
 ## How to use it
 
