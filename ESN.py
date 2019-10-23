@@ -42,7 +42,10 @@ class ESN:
         """
 
         # Set the font, freemono by default
-        self.font = font
+        if len(sys.argv) > 1 and __name__ == "__main__":
+            self.font = str(sys.argv[1])
+        else:
+            self.font = font
 
         # Set seed for whole network
         self.seed = self.set_seed(seed)
@@ -272,7 +275,7 @@ class ESN:
 
         self.Wout = self.compute_Wout(U, X, Y)
 
-        if True:# and __name__ == "__main__": # Change to True to print results of Wout training
+        if False and __name__ == "__main__": # Change to True to print results of Wout training
             Y_test = np.empty((T, self.L))
             X_test = np.empty((T, self.N))
             Y_test[0] = Y[0]
@@ -660,7 +663,7 @@ class ESN:
 
 if __name__ == "__main__":
 
-    esn = ESN()
+    esn = ESN(font = "inconsolata")
 
     # Training Wmem
     esn.train_Wmem()

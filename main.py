@@ -26,7 +26,7 @@ WM = 6 # Feedback units -> 6
 if len(sys.argv) > 1:
     font = str(sys.argv[1])
 else:
-    fonts = "freemono"
+    font = "freemono"
 
 # Directory name
 dirname = "data/results/{}".format(font)
