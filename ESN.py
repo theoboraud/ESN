@@ -634,8 +634,8 @@ class ESN:
 
         np.save("{}/U".format(self.dirname), U)
         np.save("{}/M".format(self.dirname), M)
-        np.save("{}/X".format(self.dirname), X)
         alphascii.image.save("{}/testing.png".format(self.dirname))
+        
         if __name__ == "__main__":
             print("\nGENERATING RESULTS\n")
             print("Bracket false negative: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fn"], bracket_errors["fn_per_brackets"], bracket_errors["fn_per_char"], bracket_errors["fn_per_T"]))
