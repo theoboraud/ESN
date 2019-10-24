@@ -1,0 +1,24 @@
+\documentclass{rescience}
+
+\usepackage{comment}
+\usepackage{hhline}
+\usepackage[margin, noinline,index,draft,multiuser]{fixme}
+\usepackage{array} \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\usepackage{multirow}
+\definecolor{mygreen}{RGB}{5, 170, 50}
+\definecolor{mygreen2}{RGB}{5, 115, 50}
+\fxsetface{margin}{\tiny}
+\fxusetheme{colorsig}
+\FXRegisterAuthor{strock}{astrock}{Anthony}
+\FXRegisterAuthor{boraud}{aboraud}{Théo}
+
+\begin{document}
+\input{header.tex}
+\input{content.tex}
+
+\hypersetup{linkcolor=black,urlcolor=darkgray}
+\renewcommand\emph[1]{{\bfseries #1}}
+\setlength\bibitemsep{0pt}
+\printbibliography
+
+\end{document}
