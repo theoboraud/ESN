@@ -102,9 +102,8 @@ Finally, you can use the program *PCA.py* to compute the Principal Component Ana
 In order to obtain the same result as in the ReScience article, please either use *article_compute_results.py* to compute yourself the results, or *article_load_results.py* to load them.
 
 ```bash
-    python3 main.py freemono 1639617780
-    python3 main.py inconsolata 3939310522
-```
+    python3 article_compute_results.py
+    python3 article_load_results.py
 
 Alternatively, you could use the seed *1639617780* for the FreeMono font and *3939310522* for the Inconsolata font.
 
