@@ -53,20 +53,20 @@ class Alphascii:
         inconsolata =  {"Inconsolata" : "data/font/Inconsolata-Regular.ttf",
                         "InconsolataBold" : "data/font/Inconsolata-Bold.ttf"}
 
-        roboto =       {"Roboto" : "data/font/Roboto-Black.ttf",
-                        "RobotoItalic" : "data/font/Roboto-BlackItalic.ttf",
-                        "RobotoBold" : "data/font/Roboto-Bold.ttf",
-                        "RobotoBoldItalic" : "data/font/Roboto-BoldItalic.ttf"}
-
         freemono =     {"Classic" : "data/font/FreeMono.ttf",
                         "Oblique" : "data/font/FreeMonoOblique.ttf",
                         "Bold" : "data/font/FreeMonoBold.ttf",
                         "BoldOblique" : "data/font/FreeMonoBoldOblique.ttf"}
 
+        freemono2 =    {"Classic" : "data/font/FreeMono.ttf",
+                        "Bold" : "data/font/FreeMonoBold.ttf"}
+
         if self.font == "inconsolata":
             self.fontfiles = inconsolata
         elif self.font == "freemono":
             self.fontfiles = freemono
+        elif self.font == "freemono2":
+            self.fontfiles = freemono2
         else:
             print("ERROR: No fontfile selected.")
 
@@ -162,48 +162,6 @@ class Alphascii:
             sequence += char
         return sequence
 
-
-    #def convert_sequence_to_img(self, text, size = 12, width = 7, wmin = 6, wmax = 8):
-        """
-        Generate a noisy bitmap string of text using different fonts
-
-        Args:
-            text (string): Text to be displayed
-            size (int): Font size to use to generate text (default 20)
-            width (int): Character width at generation
-            wmin (int): Minimum width after reshape
-            wmax (int): Maximum width after reshape
-
-        Returns:
-            Tuple of numpy array (Z,I)
-                Z is the bitmap string array
-                I is a unidimensional numpy array that indicates the corresponding
-           character for each column of Z
-        """
-        """fonts = self.fontfiles.values()
-        for i in range(len(self.width_chars)):
-            self.width_chars[i] = 7#np.random.randint(wmin, wmax + 1)
-            self.width_total += self.width_chars[i]
-
-        img = Image.new("L", (self.width_total, 12))
-
-        cur_width = 0
-        for i in range(len(self.sequence)):
-            temp_img = Image.new("L", (width, 12))
-            font = ImageFont.truetype(self.fontfiles[random.choice(list(self.fontfiles.items()))[0]], size = size)
-
-            draw = ImageDraw.Draw(temp_img)
-            draw.multiline_text((0,-2), self.sequence[i], fill = (255), font = font, align = "center")
-            #temp_img2 = temp_img.resize((self.width_chars[i], 12), Image.ANTIALIAS)
-
-            img.paste(temp_img, (cur_width, 0))
-            cur_width += self.width_chars[i]
-
-        Z = np.array(img)
-        Z = self.salt_pepper(Z[:,:self.width_total])
-        img = Image.fromarray(Z, 'L')
-        return (Z.T, img)
-"""
 
     def convert_sequence_to_img(self, text, size=12, zmin=1.0, zmax=1.0, add_kerning=False):
         """
@@ -302,8 +260,6 @@ class Alphascii:
 
             glyph = np.array(bitmap.buffer, dtype='ubyte').reshape(h,w)
             glyph = scipy.ndimage.zoom(glyph, (1, zoom), order=3)
-            #print(np.max(np.float64(glyph) * 255 / np.max(glyph)))
-            #print(glyph.shape)
             if glyph.shape[0]!= 0 and glyph.shape[1]!= 0:
                 glyph = np.uint8(np.float64(glyph) * 255.0 / np.max(glyph))
             w = glyph.shape[1]
@@ -324,9 +280,6 @@ class Alphascii:
 
         Z = self.salt_pepper(Z[:,:self.width_total])
         img = Image.fromarray(Z, 'L')
-        #print(np.asarray(img).shape)
-        #img = img.resize((w_font, 12))
-        #print(np.asarray(img).shape)
 
         return (Z/255.0).T, img
 
@@ -410,42 +363,6 @@ class Alphascii:
             current_pixel += (self.width_chars[i] - mid_char)
 
 
-
-    #def compute_target_outputs(self):
-        """
-        Compute the matrix containing the current character activation for each column of pixel
-        Returns:
-            width_total x bracket_lvl_max: Brackets levels (1 for opened, 0 for closed) during time (number of width pixels) of the sequence
-        """
-        """
-        target_outputs = np.nan * np.zeros((self.width_total, len(self.alphabet)))
-        current_pixel = 0 #-1
-        bracket_level = 0
-
-        for i in range(len(self.sequence)):
-            if current_pixel < (self.width_total - self.width_chars[len(self.sequence) - 1]):
-                current_char = self.sequence[i]
-            else:
-                return target_outputs
-            mid_char = math.ceil(self.width_chars[i]/2)
-            current_pixel += mid_char
-
-            if current_char == "{":
-                bracket_level += 1
-            elif current_char == "}":
-                bracket_level -= 1
-            else:
-                target_outputs[current_pixel] = 0
-                for k in range(len(self.alphabet)):
-                    if current_char == self.alphabet[k]:
-                        next_char = self.alphabet[(bracket_level + k + 1) % len(self.alphabet)]
-                for j in range(len(self.alphabet)):
-                    if next_char == self.alphabet[j]:
-                        target_outputs[current_pixel, j] = 1
-
-            current_pixel += (self.width_chars[i] - mid_char)
-            """
-
     def get_sequence_pxl(self):
         """
         Compute the characters for each pixel column in the sequence data
@@ -485,7 +402,7 @@ class Alphascii:
 # ------------------------------------------- #
 
 if __name__ == "__main__":
-    alphascii = Alphascii("Training", 100, set_i = 0, font = "freemono")
+    alphascii = Alphascii("Training", 50, set_i = 0, font = "inconsolata", seed = 1)
     print("")
     print(alphascii.sequence)
     print("")

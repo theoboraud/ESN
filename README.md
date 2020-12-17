@@ -15,7 +15,7 @@ The model has been split into multiple subfiles, for it to be modular and easily
 The first and most important file is *ESN.py*, which contains all the architecture of the model. When launched, it trains the working memory units and the output weights, and tests them, printing out their error rates and other feedbacks (see the ReScience article for further details about testing). It uses some given fonts with a random seed, which can be modifiable (and retested) if needed. The test is only done one time. For more instances, see *main.py*. The following command can be used to test the network with one instance:
 
 ```bash
-    python ESN.py
+    python3 ESN.py
 ```
 
 If you want to modify the different variables defining the weights dimensions, characteristics and/or training time of the network, feel free to modify them in the beginning of the file:
@@ -68,7 +68,7 @@ Finally, the sequence is converted to an image, using *convert_sequence_to_img()
 You can easily test this class by using the following command:
 
 ```bash
-    python alphascii.py
+    python3 alphascii.py
 ```
 
 In order to obtain similar results as in the former article, we need to initialize and test the network 30 times in a row, and then display the results. To do so, we use *main.py*, which will create 30 instances of *ESN* objects and compute their average results. When calling this class, we can either use the *FreeMono* or *Inconsolata* font files to choose which font to use. It will then be saved in the corresponding directory in *data/results/<FONTNAME>*.
@@ -76,23 +76,39 @@ In order to obtain similar results as in the former article, we need to initiali
 To compute those 30 instances of *ESN*, use the following command (with either *freemono* or *inconsolata* as argument, or nothing to select *freemono* by default):
 
 ```bash
-    python main.py inconsolata
+    python3 main.py inconsolata
 ```
 
-Note that you can also use a seed as second argument.
+Note that you can also use a seed as second argument. Otherwise, it is randomly generated, and either way it will be printed out at the beginning and end of the program on the terminal for ease of reproducibility.
 
 ```bash
-    python main.py inconsolata 1639617780
+    python3 main.py inconsolata 9636543291
 ```
 
 To be able to print out those same results back again, just use the *results.py* program, using the same argument (*freemono* by default).
 
 ```bash
-    python results.py inconsolata
+    python3 results.py inconsolata
 ```
 
 Finally, you can use the program *PCA.py* to compute the Principal Component Analysis (PCA) and then display the attractors corresponding to each memory states. If the results are already computed, the program will not create new ones, so you need to delete the old ones in *data/PCA/* if you want to start again with new results. To launch the PCA, use:
 
 ```bash
-    python PCA.py
+    python3 PCA.py
+```
+
+## ReScience article results
+
+In order to obtain the same result as in the ReScience article, please either use *article_compute_results.py* to compute yourself the results, or *article_load_results.py* to load them.
+
+```bash
+    python3 main.py freemono 1639617780
+    python3 main.py inconsolata 3939310522
+```
+
+Alternatively, you could use the seed *1639617780* for the FreeMono font and *3939310522* for the Inconsolata font.
+
+```bash
+    python3 main.py freemono 1639617780
+    python3 main.py inconsolata 3939310522
 ```

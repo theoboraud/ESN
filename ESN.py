@@ -6,9 +6,6 @@ Copyright 2019, Theophile BORAUD, Anthony STROCK, All rights reserved.
 
 import numpy as np
 from tqdm import tqdm
-#from scipy import linalg
-#from ipywidgets import *
-#from IPython.display import *
 from alphascii import Alphascii
 from PIL import Image
 import sys
@@ -35,7 +32,8 @@ class ESN:
         Constructor of the ESN class
 
         Args:
-            K (int): Number of input given by the alpascii objects (used to vary size of sequence data characters)
+            font (string): Font used for tests (either "freemono" or "inconsolata")
+            seed (int): Seed to generate random values for the whole class
 
         Returns:
             ESN object
@@ -103,9 +101,7 @@ class ESN:
             int: Seed
         """
 
-        if len(sys.argv) > 1 and __name__ == "__main__":
-            seed = int(sys.argv[1])
-        elif seed == None:
+        if seed == None:
             import time
             seed = int((time.time()*10**6) % 4294967295)
         try:
@@ -206,8 +202,6 @@ class ESN:
             for i in tqdm(range(1, T)):
                 X_test[i] = self.x_n1(U[i], X_test[i-1], M_test[i-1])
                 M_test[i] = self.m_n1(U[i], X_test[i], M_test[i-1])
-                #print("M({}) = {}".format(i, M[i]))
-                #print("M_test({}) = {}".format(i, M_test[i]))
 
             img1 = self.concatenate_imgs(alphascii.image, self.img_WM_units(M))
             img = self.concatenate_imgs(img1, self.img_WM_units(M_test))
@@ -270,8 +264,6 @@ class ESN:
             # Store x(n+1) into X
             X[i] = x_n
 
-            #m_n = self.m_n1(u_n1, x_n, m_n)
-            #M[i] = m_n
 
         self.Wout = self.compute_Wout(U, X, Y)
 
@@ -283,8 +275,6 @@ class ESN:
             for i in tqdm(range(1, T)):
                 X_test[i] = self.x_n1(U[i], X_test[i-1], M[i-1])
                 Y_test[i] = np.dot(self.Wout, np.concatenate([U[i], X_test[i]]))
-                #print("M({}) = {}".format(i, M[i]))
-                #print("M_test({}) = {}".format(i, M_test[i]))
 
             img = self.concatenate_imgs(alphascii.image, self.img_WM_units(M))
             img = self.concatenate_imgs(img, self.img_outputs(Y))
@@ -353,7 +343,6 @@ class ESN:
         count_alphabet = np.zeros(len(alphascii.alphabet)) # Stores the number of each character of the alphabet in the sequence
 
         print("TESTING")
-        # TO CHANGE ------------
         cur_width = 0
         cur_char = 0
         char_ended = False
@@ -366,7 +355,6 @@ class ESN:
         }
 
         for i in tqdm(range(1, T)):
-            # TO CHANGE ------------
             char_ended = False
             cur_width += 1
             if cur_width == alphascii.width_chars[cur_char]:
@@ -421,9 +409,6 @@ class ESN:
         img = self.concatenate_imgs(img1, imge)
         img = self.concatenate_imgs(img, self.img_outputs(predictions_y, ignore = np.where(np.isnan(Y[:,0]))[0], set_max = True))
 
-        # DEBUG
-        #print(np.sum(errors)/alphascii.n_characters)
-        #print(errors_y, alphascii.n_characters)
 
         # Compute results
         errors_y /= alphascii.n_characters # Percentage error of y
@@ -447,8 +432,6 @@ class ESN:
             bracket_errors["fp_per_T"] = bracket_errors["fp"]/T
             if __name__ == "__main__":
                 self.print_save_results(bracket_errors, counter, errors_y, errors_y_alphabet/count_alphabet, U, M, X, alphascii)
-            #if __name__ == "__main__": # Change to True to print out results
-                #img.show() DEBUG
 
 
 
@@ -568,11 +551,6 @@ class ESN:
             if np.any(np.isnan(Y[i])) or i in ignore:
                 for j in range(y):
                     pixels[i,j] = 120
-            #DEBUG
-            #elif i in ignore:
-                #i = int(i)
-                #for j in range(y):
-                    #pixels[i,j] = 120
             else:
                 if set_max:
                     max_pxl = np.argmax(Y[i])
@@ -635,7 +613,7 @@ class ESN:
         np.save("{}/U".format(self.dirname), U)
         np.save("{}/M".format(self.dirname), M)
         alphascii.image.save("{}/testing.png".format(self.dirname))
-        
+
         if __name__ == "__main__":
             print("\nGENERATING RESULTS\n")
             print("Bracket false negative: {} (Curly brackets: {:.2%}) (Characters: {:.2%}) (Time steps: {:.2%})".format(bracket_errors["fn"], bracket_errors["fn_per_brackets"], bracket_errors["fn_per_char"], bracket_errors["fn_per_T"]))
@@ -655,21 +633,3 @@ class ESN:
             idx = np.argsort(errors_y_alphabet)[::-1]
             for i in idx:
                 print("{}: {:.2%}".format(alphascii.alphabet[i], errors_y_alphabet[i]))
-
-
-# ------------------------------------------- #
-# ----------------- TESTING ----------------- #
-# ------------------------------------------- #
-
-if __name__ == "__main__":
-
-    esn = ESN(font = "inconsolata")
-
-    # Training Wmem
-    esn.train_Wmem()
-
-    # Training Wout
-    esn.train_Wout()
-
-    # Testing the ESN
-    esn.test()
