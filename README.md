@@ -104,6 +104,7 @@ In order to obtain the same result as in the ReScience article, please either us
 ```bash
     python3 article_compute_results.py
     python3 article_load_results.py
+```
 
 Alternatively, you could use the seed *1639617780* for the FreeMono font and *3939310522* for the Inconsolata font.
 
