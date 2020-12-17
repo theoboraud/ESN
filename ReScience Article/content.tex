@@ -12,10 +12,10 @@ Their model had been trained to predict the next character in a sequence randoml
 \\
 (2) They characterised the working memory states of their model by defining a notion of attractors for input driven dynamical systems.
 In autonomous dynamical systems the memory states could have been characterised for instance by the stable fixed points of the dynamic.
-However with inputs, these points are transformed into blobs stable against input that doesn't aim to change the memory state.
-In our replication we also obtain qualitatively the same result.
+However with inputs, these points are transformed into blobs stable against input that does not aim to change the memory state.
+In our replication we also obtained qualitatively the same result.
 However in the paper they go further and propose a method to automatically find the attractors of an input driven dynamical system.
-They applied this method only to a toy model and not to the working memory model so we didn't implement that part. \\
+They applied this method only to a toy model and not to the working memory model so we did not implement that part. \\
 \\
 In \textbf{Section~\ref{s:method}} we give all the implementation details of the model and the tasks it aims to solve.
 We also highlight the few details that were missing in the paper and that we had to make a choice on in order to reproduce the results.
@@ -49,14 +49,9 @@ Given these notations, the dynamic of their model is as follow:
         x(n+1) = f(W^{in}u(n+1) + Wx(n) + W^{b}m(n))
     \end{equation}
     
-    \item Eq. (\ref{eq:mn+1}) represents the dynamic of the WM-units. This dynamic involves the state of the WM-units given the actual state of input and internal units, and the actual state of the WM-units. The sharp threshold function $\mathbf{f^{m}}$ is the activation function for the WM-units, and is given by Eq. (\ref{eq:fm}), while $\mathbf{W^{mem}}$ will be computed by linear regression during the step 1 of the model \textit{Training} phase as shown in Eq. (\ref{eq:Wmem}).
+    \item Eq. (\ref{eq:mn+1}) represents the dynamic of the WM-units. This dynamic involves the state of the WM-units given the actual state of input and internal units, and the actual state of the WM-units. The sharp threshold function $\mathbf{f^{m}}$ is the activation function for the WM-units, and is given by Eq. (\ref{eq:fm}), while $\mathbf{W^{mem}}$ is computed by linear regression during the step 1 of the model \textit{Training} phase as shown in Eq. (\ref{eq:Wmem}).
     \begin{equation} \label{eq:mn+1}
         m(n+1) = f^{m}(W^{mem}(u(n+1), x(n+1)))
-    \end{equation}
-    
-    \item Eq. (\ref{eq:yn+1}) represents the dynamic of the output units. This dynamic involves the state of the output units given the actual state of input and internal units. $\mathbf{f^{out}}$ is the activation function of the output units, and is the Identity function, while $\mathbf{W^{out}}$ will be computed by linear regression during the step 2 of the model \textit{Training} phase as shown in Eq. (\ref{eq:Wout}).
-    \begin{equation} \label{eq:yn+1}
-        y(n+1) = f^{out}(W^{out}(u(n+1), x(n+1)))
     \end{equation}
     
     \item Eq. (\ref{eq:fm}) is the sharp threshold function used as the activation function of the WM-units.
@@ -64,6 +59,11 @@ Given these notations, the dynamic of their model is as follow:
         f^{m} = \begin{cases}
             -0.5 \; \; x\leq 0. \\
             +0.5 \; \; x>0. \end{cases}
+    \end{equation}
+    
+    \item Eq. (\ref{eq:yn+1}) represents the dynamic of the output units. This dynamic involves the state of the output units given the actual state of input and internal units. $\mathbf{f^{out}}$ is the activation function of the output units, and is the Identity function, while $\mathbf{W^{out}}$ will be computed by linear regression during the step 2 of the model \textit{Training} phase as shown in Eq. (\ref{eq:Wout}).
+    \begin{equation} \label{eq:yn+1}
+        y(n+1) = f^{out}(W^{out}(u(n+1), x(n+1)))
     \end{equation}
     
     \item Eq. (\ref{eq:Wmem}) is the equation to compute the weights matrix for WM-units using linear regression. The activations of the reservoir, the input and the target of the WM-units are all stored in matrix $\mathbf{H}$, $\mathbf{M_{target}}$ is the target of the WM-units, and $\dagger$ stands for the pseudo-inverse.
@@ -78,11 +78,11 @@ Given these notations, the dynamic of their model is as follow:
     
 \end{itemize}
 
-When the model is started, the weights are initialized as stated:
+When the model starts, the weights are initialized as stated:
 \begin{itemize}
     \item We have $\mathbf{K}=13$, $\mathbf{N}=1200$, $\mathbf{L}=65$ and $\mathbf{WM}=6$.
     \item $\mathbf{W^{in}}$ is of size $\mathbf{N \times K}$, with 10\% of which are +0.5, 10\% are -0.5, and the rest is 0.
-    \item $\mathbf{W}$ is of size $\mathbf{N \times N}$, with only 12000 random non-zeros connections, which will randomly either take the value +0.1540 or -0.1540.
+    \item $\mathbf{W}$ is of size $\mathbf{N \times N}$, with only 12000 random non-zero connections, which will randomly either take the value +0.1540 or -0.1540.
     \item $\mathbf{W^{b}}$ is of size $\mathbf{N \times WM}$, where every weight is either +0.4 or -0.4.
     
 \end{itemize}
@@ -98,8 +98,8 @@ When the model is started, the weights are initialized as stated:
 
 Pascanu and Jaeger also describe the method they used to generate the input of the model.
 The input consists of a constant bias (-0.5) and a column of 12 pixels of an image.
-Each column of 12 pixels of the image is given as input to the network one after the other.
-
+Each column of 12 pixels of the image is given as input to the network one after the other. \\
+\\
 This image represents a sequence of characters, i.e. curly brackets (opened or closed) or 65 other ASCII symbols (e.g. letters in lower cases, numbers...).
 To each of these characters we associate a number that is its position in an alphabet sequence (see \textbf{Table~\ref{tab:alphabet}}).
 For the sake of simplicity, in the following we say character $i$ for the $i$-th character in that sequence.
@@ -141,9 +141,9 @@ The prediction for the next character should be made in the middle of receiving 
 \subsection{Training and testing}
 
 As they did, we train $W^{mem}$ and $W^{out}$ separately with different input sequences.
-First we train train $W^{mem}$ using teacher forcing and then we train $W^{out}$.
+First we train $W^{mem}$ using teacher forcing and then we train $W^{out}$.
 We use a sequence of 10000 characters to train $W^{mem}$, and of 49000 characters to train $W^{out}$.
-The teacher signal for training $W^{mem}$ is defined at all time whereas for training $W^{out}$ it is defined only in the middle of characters that are not curly brackets.
+The teacher signal for training $W^{mem}$ is defined at all times whereas for training $W^{out}$ it is defined only in the middle of characters that are not curly brackets.
 Finally we test the model with a 35000 characters long sequence.
 As an error on the bracket level would propagate and create more errors, each time the model makes a mistake on the bracket level in the WM-units we count it and correct it.
 These errors are classified between \textit{false positives} (i.e. the network detects a bracket when there is none) and \textit{false negatives} (i.e. the network fails to detect a bracket).
@@ -151,22 +151,22 @@ The errors made by the output units are also counted but not corrected. The erro
 
 \subsection{Attractors}
 
-Following the instructions in the original article, we run the WM model 7 times, each time with a different sequence with no bracket, and forcing the WM-unit to a fixed bracket level (\textit{k} = 0 for the first, \textit{k} = 1 for the second, etc...). Each sequence has a length of 6500 characters, for about 45,000 network updates in total. We collect in each case both the reservoir states and the input nits. Then, every sets of reservoir states (resp. input vectors) are concatenated, and their first principal components (or PCs) are computed. Finally, for each of the 7 original sets, the first PC of the inputs is plotted against the first two PCs of the reservoir states.
+Following the instructions in the original article, we run the WM model 7 times, each time with a different sequence with no bracket, and forcing the WM-unit to a fixed bracket level (\textit{k} = 0 for the first, \textit{k} = 1 for the second, etc...). Each sequence has a length of 6500 characters, for about 45,000 network updates in total. We collect in each case both the reservoir states and the input units. Then, every sets of reservoir states (resp. input vectors) are concatenated, and their first principal components (or PCs) are computed. Finally, for each of the 7 original sets, the first PC of the inputs is plotted against the first two PCs of the reservoir states.
 
 \subsection{Implementation choices}
 
-In the original article very few parts were unclear. Pascanu and Jaeger briefly explain how they choose to generate the input, but did not specify the exact method and tools they used to implement it. This subsection aims at listing out the choice we made and the tools we used to obtain similar results than the original paper.
+In the original article very few parts were unclear. Pascanu and Jaeger briefly explain how they choose to generate the input, but did not specify the exact method and tools they used to implement it. This subsection aims at listing out the choices we made and the tools we used to obtain similar results than the original paper.
 
 \subsubsection{Language and libraries}
 
-Since the language used for the former model was not specified, we decided to use Python (3.7.4) to implement our model.
+Since the language used for the former model was not specified, we decide to use Python (3.7.4) to implement our model.
 The article did not specify which tools they used to transform their symbolic sequence into an image.
-We chose to use the libraries \href{https://pillow.readthedocs.io/en/stable/}{\textit{PIL}}, \href{https://github.com/rougier/freetype-py}{\textit{FreeType}} and \href{https://www.scipy.org/}{\textit{SciPy}} for this purpose.
+Thus, we choose to use the libraries \href{https://pillow.readthedocs.io/en/stable/}{\textit{PIL}}, \href{https://github.com/rougier/freetype-py}{\textit{FreeType}} and \href{https://www.scipy.org/}{\textit{SciPy}} for this purpose.
 
 \subsubsection{Input sequence alphabet}
 \label{s:input_gen2}
 
-In the original paper Pascanu and Jageger did not specify which exact characters they used for their 65 symbols, and therefore not the exact order of this alphabet. For this, we decided to create our own, as shown on \textbf{Table \ref{tab:alphabet}}. We can observe in \textbf{Table \ref{tab:sequence_example}} an input sequence example in order to further understand the behaviour of the input generation algorithm with our alphabet.
+In the original paper Pascanu and Jageger did not specify which exact characters they used for their 65 symbols, and therefore not the exact order of this alphabet. For this, we decide to create our own, as shown on \textbf{Table \ref{tab:alphabet}}. We can observe in \textbf{Table \ref{tab:sequence_example}} an input sequence example in order to further understand the behaviour of the input generation algorithm with our alphabet.
 
 \begin{table}[!ht]
     \centering
@@ -192,9 +192,9 @@ In the original paper Pascanu and Jageger did not specify which exact characters
 
 \subsubsection{Font}
 
-We have not been able to find the fonts used in the original model (\textit{FreeMono} classic, oblique, bold and bold oblique of \href{https://gimp.software/2018/11/13/download-gimp-2-3-6/}{Gimp 2.3.6}).
-Therefore, we tried in the first place to use these \href{https://www.fontspace.com/gnu-freefont/freemono}{\textit{FreeMono}} (classic, oblique, bold and bold oblique as well) fonts
-However, as we encountered more errors than in the original paper, we also tried to use the \href{https://fonts.google.com/specimen/Inconsolata}{\textit{Incosolata}} (regular and bold) fonts distributed by Google, which gave far better results.
+We have not been able to find the fonts used in the original model (\textit{FreeMono}, \textit{FreeMono Bold}, \textit{FreeMono Oblique} and FreeMono Bold Oblique of \href{https://gimp.software/2018/11/13/download-gimp-2-3-6/}{Gimp 2.3.6}).
+Therefore, we try in the first place to use these \href{https://www.fontspace.com/gnu-freefont/freemono}{\textit{FreeMono}} (classic, oblique, bold and bold oblique) fonts.
+However, as we encounter more errors than in the original paper, we use the \href{https://fonts.google.com/specimen/Inconsolata}{\textit{Incosolata}} (regular and bold) fonts distributed by Google, which give far better results.
 
 \begin{figure}[h]
     \centering
@@ -206,18 +206,18 @@ However, as we encountered more errors than in the original paper, we also tried
 
 \subsubsection{Noise}
 
-Pascanu and Jaeger didn't specify in the original the probability of the salt-and-pepper noise. Thus, we tried a salt-and-pepper noise of amplitude 0.1, and probability 1. \\
+Pascanu and Jaeger did not specify in the original the probability of the salt-and-pepper noise. Thus, we tried a salt-and-pepper noise of amplitude 0.1, and probability 1. \\
 
 \subsubsection{Warm up in Principal Component Analysis}
 
-We have observed that for each memory state the first few points do not necessarily gather with their cluster. Thus, we removed the first 100 time steps from the display but not to perform the PCA.
+We can observe that for each memory state the first few points do not necessarily gather with their cluster. Thus, the first 100 time steps are removed from display only for clarity purposes.
 
 \section{Results}
 \label{s:result}
 
 \subsection{Network}
 According to the former article, the experiment has been run over 30 runs for the network. 
-We assumed that each time, it uses different randomly generated training and testing sequences, and reservoir, input and feedback weights. Those 30 runs are then used to compute mean and standard deviation of different performance measures. In the following Tables we used the color light green for the \textit{FreeMono} fonts (first row on result tables), dark green for \textit{Inconsolata} (second row), and black for their former results (third row). \\
+We assume that each time, it uses different randomly generated training and testing sequences, and reservoir, input and feedback weights. Those 30 runs are then used to compute mean and standard deviation of different performance measures. In the following Tables we use the color light green for the \textit{FreeMono}\footnote{Seed used for results using \textit{FreeMono}: \textit{1639617780}} fonts (first row on result tables), dark green for \textit{Inconsolata}\footnote{Seed used for results using \textit{Inconsolata}: \textit{3939310522}} (second row), and black for their former results (third row). \\
 \\
 First, as they did in the original paper we inspect the WM-units performance.
 We dissociate the errors made by the WM-units into false negative errors (when the network did not recognize a curly bracket as such) and false positive errors (when the network detects the character as a curly bracket while it is not).
@@ -247,7 +247,7 @@ These errors are counted, and then transformed into three different percentages,
     \label{tab:errors_wm}
 \end{table}
 
-Then we looked at the characters falsely identified as curly brackets. The \textbf{Table \ref{tab:false_positives}} shows how the characters highlighted in the original experiment are falsely identified as curly brackets.
+Then we look at the characters falsely identified as curly brackets. The \textbf{Table \ref{tab:false_positives}} shows how the characters highlighted in the original experiment are falsely identified as curly brackets.
 
 \begin{table}[!ht]
     \centering
@@ -269,7 +269,7 @@ Then we looked at the characters falsely identified as curly brackets. The \text
         
         \multirow{3}{*}{"]"} & \textcolor{mygreen}{$509.6 \pm 18.3$} & \textcolor{mygreen}{$9.53 \pm 3.58$} & \textcolor{mygreen}{$3.0 \pm 1.4$}\\
         & \textcolor{mygreen2}{$514.4 \pm 18.3$} & \textcolor{mygreen2}{$0.13 \pm 0.34$} & \textcolor{mygreen2}{$0 \pm 0$}\\
-        & $501.3 \pm 15.1$ & $7.2 \pm 6.5$ & $7.2 \pm 6.5$ \\ \hline
+        & $501.3 \pm 15.1$ & $0.05 \pm 0.03$ & $6.0 \pm 5.4$ \\ \hline
         
         \multirow{3}{*}{"@"} & \textcolor{mygreen}{$507.0 \pm 20.8$} & \textcolor{mygreen}{$10.13 \pm 2.84$} & \textcolor{mygreen}{$3.9 \pm 2.1$} \\
         & \textcolor{mygreen2}{$508.8 \pm 22.5$} & \textcolor{mygreen2}{$0 \pm 0$} & \textcolor{mygreen2}{$0 \pm 0$} \\
@@ -283,7 +283,7 @@ Then we looked at the characters falsely identified as curly brackets. The \text
     \label{tab:false_positives}
 \end{table}
 
-As they did, we also measured the average absolute value of $\mathbf{W^{mem}}$ weights over the 30 runs, which can be observed in \textbf{Table \ref{tab:wmem}}. \\
+As in the former article, we measure the average absolute value of $\mathbf{W^{mem}}$ weights over the 30 runs, which can be observed in \textbf{Table \ref{tab:wmem}}. \\
 \\
 
 \begin{table}[!ht]
@@ -315,7 +315,9 @@ As they did, we also measured the average absolute value of $\mathbf{W^{mem}}$ w
 As we can see in \textbf{Tables \ref{tab:errors_wm} and \ref{tab:false_positives}}, by using the \textit{FreeMono} font we obtain way more errors in the WM-unit than in the original paper. However by using the \textit{Inconsolata} font we obtain similar results. \\
 \\
 Finally, we compute the average error rate for the prediction made in the output units. We count only the errors in the middle of the presentation of a character that is not a curly bracket, as the target is defined only during these time steps.
-Over the 30 runs, with the \textit{Freemono} font we found an error rate of \textbf{26.02 $\pm$ 0.32\%}, for \textbf{24.83 $\pm$ 0.27\%} in the former article. With the \textit{Inconsolata} font we obtain an error rate of \textbf{22.22 $\pm$ 0.25\%}. These three results are very similar.
+Over the 30 runs, with the \textit{Freemono} font we find an error rate of \textbf{26.02 $\pm$ 0.32\%}, for \textbf{24.83 $\pm$ 0.27\%} in the former article. With the \textit{Inconsolata} font we obtain an error rate of \textbf{22.22 $\pm$ 0.25\%}. These three results are very similar. \\
+\\
+It is important to note that, during our various testing, and as in the original model, the network never changes the WM-units to an invalid state or by increasing or decreasing the counter by more than one, attesting their assumption that any error would be the result of misclassification of a character (as expected), and not any other subprocesses of the WM-units.
 
 \subsection{Attractors}
 
@@ -325,12 +327,14 @@ As in the original paper, for both \textit{Freemono} and \textit{Inconsolata} fo
     \centering
     \includegraphics[width = .45\linewidth]{data/FreeMono_PCA.png}
     \includegraphics[width = .45\linewidth]{data/Inconsolata_PCA.png}
-    \caption{Principal Component Analysis results. Each coloured column represents the several reservoir states for each memory states in the form of attractors, with \textit{FreeMono} results on the left, and \textit{Inconsolata} on the right. For each memory states we do not display the first 100 points.}
+    \caption{Principal Component Analysis results. Each coloured column represents the several reservoir states for each memory states in the form of attractors, with \textit{FreeMono} results on the left, and \textit{Inconsolata} on the right. For each memory states we do not display the first 100 points. We can observe that the points for the different working memory states are clustered much more clearly than in the original article, spanning a much larger range. However, being only a quantitative difference, the results stay very similar from the original}
     \label{fig:PCA}
 \end{figure}
 
 \section{Conclusion}
 
-In the end, we consider that we have been able to successfully replicate the result obtained by Pascanu and Jaeger in \textit{A Neurodynamical Model for Working Memory}.
+Considering the original tools were not sourced, we needed to use our own tools, whether it be for the language, the fonts but also for the input generation, which could easily justify the differences between the original results and the ones found in this replication. However, these differences also highlight the fact that this model is really modular and consistent, giving similar results despite the differences in fonts and error rates. \\
+\\
+In the end, we consider that we have been able to successfully replicate the result obtained by Pascanu and Jaeger in \textit{A Neurodynamical Model for Working Memory}. 
 %With the same ESN-based model (i.e. mainly composed of random connections)
-Very few information were missing in the original paper, such as the exact font they used, a more precise definition of the noise they added or the ASCII characters they used.
+Very few information were missing in the original paper, such as the input generation methods from string to image they used, a more precise definition of the noise they added or the ASCII characters alphabet they designed@Vahidrostami.
