@@ -60,10 +60,10 @@ data:
 
 # Information about the original article that has been replicated
 replication:
- - cite: # Full textual citation
+ - cite: Pascanu, R., & Jaeger, H. (2011). A neurodynamical model for working memory. Neural networks, 24(2), 199-207. # Full textual citation
  - bib:  # Bibtex key (if any) in your bibliography file
- - url:  # URL to the PDF, try to link to a non-paywall version
- - doi:  # Regular digital object identifier
+ - url:  https://www.sciencedirect.com/science/article/abs/pii/S0893608010001899 # URL to the PDF, try to link to a non-paywall version
+ - doi:  10.1016/j.neunet.2010.10.003 # Regular digital object identifier
 
 # Don't forget to surround abstract with double quotes
 abstract: "Neurodynamical models of working memory (WM) should provide mechanisms
@@ -98,34 +98,34 @@ language: Python
 
 # For example, the URL of the GitHub issue where review actually occured
 review:
-  - url:
+  - url: https://github.com/ReScience/submissions/issues/8
 
 contributors:
-  - name:
-    orcid:
+  - name: Benoît Girard
+    orcid: 0000-0002-8117-7064
     role: editor
-  - name:
-    orcid:
+  - name: Vahid Rostami
+    orcid: 0000-0002-3851-0220
     role: reviewer
-  - name:
-    orcid:
+  - name: Christian Jarvers
+    orcid: 0000-0003-0062-9776
     role: reviewer
 
 # This information will be provided by the editor
 dates:
-  - received:
-  - accepted:
-  - published:
+  - received: October 24, 2019
+  - accepted: March 8, 2021
+  - published: March 9, 2021
 
 # This information will be provided by the editor
 article:
-  - number: # Article number will be automatically assigned during publication
-  - doi:    # DOI from Zenodo
-  - url:    # Final PDF URL (Zenodo or rescience website?)
+  - number: 1 # Article number will be automatically assigned during publication
+  - doi: 10.5281/zenodo.4590961   # DOI from Zenodo
+  - url: https://zenodo.org/record/4590961/files/article.pdf   # Final PDF URL (Zenodo or rescience website?)
 
 # This information will be provided by the editor
 journal:
   - name:   "ReScience C"
   - issn:   2430-3658
-  - volume: 5
+  - volume: 7
   - issue:  1
