@@ -1,0 +1,17 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Methods}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Model}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Input\040generation}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Task}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Training\040and\040testing}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.5}{Attractors}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.6}{Implementation\040choices}{section.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.6.1}{Language\040and\040libraries}{subsection.2.6}% 9
+\BOOKMARK [3][-]{subsubsection.2.6.2}{Input\040sequence\040alphabet}{subsection.2.6}% 10
+\BOOKMARK [3][-]{subsubsection.2.6.3}{Font}{subsection.2.6}% 11
+\BOOKMARK [3][-]{subsubsection.2.6.4}{Noise}{subsection.2.6}% 12
+\BOOKMARK [3][-]{subsubsection.2.6.5}{Warm\040up\040in\040Principal\040Component\040Analysis}{subsection.2.6}% 13
+\BOOKMARK [1][-]{section.3}{Results}{}% 14
+\BOOKMARK [2][-]{subsection.3.1}{Network}{section.3}% 15
+\BOOKMARK [2][-]{subsection.3.2}{Attractors}{section.3}% 16
+\BOOKMARK [1][-]{section.4}{Conclusion}{}% 17
