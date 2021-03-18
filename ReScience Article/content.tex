@@ -38,44 +38,44 @@ In the following we use the following notations to describe the dynamic of their
     \item Input units activations $\mathbf{u}$, with weights matrix $\mathbf{W^{in}}$ for input connections;
     \item Internal units activations $\mathbf{x}$, with weights matrix $\mathbf{W}$ for internal connections;
     \item Output units activations $\mathbf{y}$, with weights matrix $\mathbf{W^{out}}$ for output connections;
-    \item WM-units activations $\mathbf{m}$, with weights matrix $\mathbf{W^{mem}}$ for connections from the input units, the reservoir and the WM-units to the WM-units; 
-    \item Weights matrix $\mathbf{W^{b}}$ for the feedback connections from the WM-units to the reservoir. 
+    \item WM-units activations $\mathbf{m}$, with weights matrix $\mathbf{W^{mem}}$ for connections from the input units, the reservoir and the WM-units to the WM-units;
+    \item Weights matrix $\mathbf{W^{b}}$ for the feedback connections from the WM-units to the reservoir.
 \end{itemize}
 
-Given these notations, the dynamic of their model is as follow: 
+Given these notations, the dynamic of their model is as follow:
 \begin{itemize}
     \item Eq. (\ref{eq:xn+1}) represents the dynamic of the internal units. This dynamic involves at the same time the state of the internal units given their previous state, the previous state of the WM-units and the actual state of input units. We use $\mathbf{}{f}$ to subsume its activation functions, which are the hyperbolic tangent in this model.
     \begin{equation} \label{eq:xn+1}
         x(n+1) = f(W^{in}u(n+1) + Wx(n) + W^{b}m(n))
     \end{equation}
-    
+
     \item Eq. (\ref{eq:mn+1}) represents the dynamic of the WM-units. This dynamic involves the state of the WM-units given the actual state of input and internal units, and the actual state of the WM-units. The sharp threshold function $\mathbf{f^{m}}$ is the activation function for the WM-units, and is given by Eq. (\ref{eq:fm}), while $\mathbf{W^{mem}}$ is computed by linear regression during the step 1 of the model \textit{Training} phase as shown in Eq. (\ref{eq:Wmem}).
     \begin{equation} \label{eq:mn+1}
         m(n+1) = f^{m}(W^{mem}(u(n+1), x(n+1)))
     \end{equation}
-    
+
     \item Eq. (\ref{eq:fm}) is the sharp threshold function used as the activation function of the WM-units.
     \begin{equation} \label{eq:fm}
         f^{m} = \begin{cases}
             -0.5 \; \; x\leq 0. \\
             +0.5 \; \; x>0. \end{cases}
     \end{equation}
-    
+
     \item Eq. (\ref{eq:yn+1}) represents the dynamic of the output units. This dynamic involves the state of the output units given the actual state of input and internal units. $\mathbf{f^{out}}$ is the activation function of the output units, and is the Identity function, while $\mathbf{W^{out}}$ will be computed by linear regression during the step 2 of the model \textit{Training} phase as shown in Eq. (\ref{eq:Wout}).
     \begin{equation} \label{eq:yn+1}
         y(n+1) = f^{out}(W^{out}(u(n+1), x(n+1)))
     \end{equation}
-    
+
     \item Eq. (\ref{eq:Wmem}) is the equation to compute the weights matrix for WM-units using linear regression. The activations of the reservoir, the input and the target of the WM-units are all stored in matrix $\mathbf{H}$, $\mathbf{M_{target}}$ is the target of the WM-units, and $\dagger$ stands for the pseudo-inverse.
     \begin{equation} \label{eq:Wmem}
         W^{mem} = (H^{\dagger} \cdot M_{target})^T\\
     \end{equation}
-    
+
     \item Eq. (\ref{eq:Wout}) is the equation to compute the weights matrix for output units using linear regression. The activations of the reservoir and the input units are all stored in matrix $\mathbf{G}$, $\mathbf{Y_{target}}$ is the target of the output units, and $\dagger$ stands as before for the pseudo-inverse.
     \begin{equation} \label{eq:Wout}
         W^{out} = (G^{\dagger} \cdot f^{out^{-1}}(Y_{target}))^T\\
     \end{equation}
-    
+
 \end{itemize}
 
 When the model starts, the weights are initialized as stated:
@@ -84,7 +84,7 @@ When the model starts, the weights are initialized as stated:
     \item $\mathbf{W^{in}}$ is of size $\mathbf{N \times K}$, with 10\% of which are +0.5, 10\% are -0.5, and the rest is 0.
     \item $\mathbf{W}$ is of size $\mathbf{N \times N}$, with only 12000 random non-zero connections, which will randomly either take the value +0.1540 or -0.1540.
     \item $\mathbf{W^{b}}$ is of size $\mathbf{N \times WM}$, where every weight is either +0.4 or -0.4.
-    
+
 \end{itemize}
 
 \begin{figure}[h]
@@ -118,7 +118,7 @@ $.
 During the training phase, the probability for the next character to be an open (resp. closed) curly bracket is 0.15.
 Whereas in the testing phase it is 0.03, which forces the WM-unit to maintain the current bracket level for a longer time. \\
 \\
-The sequence is transformed into an image by displaying and concatenating each of its characters. 
+The sequence is transformed into an image by displaying and concatenating each of its characters.
 The characters are displayed using a randomly selected font and then uniformly randomly stretched between 6, 7 or 8 pixels in width.
 Finally a salt-and-pepper noise of amplitude 0.1 and probability 1 is added to the whole image.\\
 \\
@@ -216,7 +216,7 @@ We can observe that for each memory state the first few points do not necessaril
 \label{s:result}
 
 \subsection{Network}
-According to the former article, the experiment has been run over 30 runs for the network. 
+According to the former article, the experiment has been run over 30 runs for the network.
 We assume that each time, it uses different randomly generated training and testing sequences, and reservoir, input and feedback weights. Those 30 runs are then used to compute mean and standard deviation of different performance measures. In the following Tables we use the color light green for the \textit{FreeMono}\footnote{Seed used for results using \textit{FreeMono}: \textit{1639617780}} fonts (first row on result tables), dark green for \textit{Inconsolata}\footnote{Seed used for results using \textit{Inconsolata}: \textit{3939310522}} (second row), and black for their former results (third row). \\
 \\
 First, as they did in the original paper we inspect the WM-units performance.
@@ -233,11 +233,11 @@ These errors are counted, and then transformed into three different percentages,
         \multirow{3}{*}{false negatives} & \textcolor{mygreen}{$54.7 \pm 6.6$} & \textcolor{mygreen}{$3.01 \pm 0.35$} & \textcolor{mygreen}{$0.16 \pm 0.020$} & \textcolor{mygreen}{$0.022 \pm 0.003$} \\
         & \textcolor{mygreen2}{$0.2 \pm 0.4$} & \textcolor{mygreen2}{$0.01 \pm 0.02$} & \textcolor{mygreen2}{$0 \pm 0.001$} & \textcolor{mygreen2}{$0 \pm 0$} \\
         & $7.2 \pm 6.5$ & $0.34 \pm 0.30$ & $0.02 \pm 0.018$ & $0.003 \pm 0.002$ \\ \hline
-       
+
         \multirow{3}{*}{false positives} & \textcolor{mygreen}{$1252.6 \pm 48.5$} & \textcolor{mygreen}{$68.97 \pm 2.44$} & \textcolor{mygreen}{$3.77 \pm 0.148$} & \textcolor{mygreen}{$0.511 \pm 0.020$} \\
         & \textcolor{mygreen2}{$97.2 \pm 34.5$} & \textcolor{mygreen2}{$5.37 \pm 1.89$} & \textcolor{mygreen2}{$0.29 \pm 0.104$} & \textcolor{mygreen2}{$0.040 \pm 0.014$} \\
         & $59.8 \pm 21.6$ & $2.84 \pm 1.02$ & $0.17 \pm 0.061$ & $0.024 \pm 0.008$ \\ \hline
-        
+
         \multirow{3}{*}{total} & \textcolor{mygreen}{$1307.3 \pm 49.3$} & \textcolor{mygreen}{$71.98 \pm 2.44$} & \textcolor{mygreen}{$3.94 \pm 0.151$} &  \textcolor{mygreen}{$0.534 \pm 0.020$} \\
         & \textcolor{mygreen2}{$97.4 \pm 34.6$} & \textcolor{mygreen2}{$5.37 \pm 1.89$} & \textcolor{mygreen2}{$0.29 \pm 0.104$} & \textcolor{mygreen2}{$0.040 \pm 0.014$} \\
         & $67.0 \pm 22.9$ & $3.18 \pm 1.09$ & $0.19 \pm 0.065$ & $0.027 \pm 0.009$ \\ \hline
@@ -254,27 +254,27 @@ Then we look at the characters falsely identified as curly brackets. The \textbf
     \begin{tabular}{|C{15mm}|C{32mm}|C{32mm}|C{32mm}|}
         \hline
         Character & Number of times the character is in testing sequences & Number of times the counter increased & Number of times the counter decreased \\ \hline \hline
-        
+
         \multirow{3}{*}{"("} & \textcolor{mygreen}{$508.7 \pm 23.8$} & \textcolor{mygreen}{$128.07 \pm 14.08$} & \textcolor{mygreen}{$3.8 \pm 2.0$} \\
         & \textcolor{mygreen2}{$514.2 \pm 23.7$} & \textcolor{mygreen2}{$93.40 \pm 34.50$} & \textcolor{mygreen2}{$0 \pm 0$} \\
         & $499.5 \pm 22.3$ & $21.5 \pm 10.1$ & $0 \pm 0$ \\ \hline
-        
+
         \multirow{3}{*}{")"} & \textcolor{mygreen}{$516.7 \pm 19.7$} & \textcolor{mygreen}{$12.10 \pm 4.21$} & \textcolor{mygreen}{$3.9 \pm 1.7$} \\
         & \textcolor{mygreen2}{$516.8 \pm 18.2$} & \textcolor{mygreen2}{$0 \pm 0$} & \textcolor{mygreen2}{$0.3 \pm 0.7$}\\
         & $502.4 \pm 18.6$ & $0 \pm 0$ &  $0.5 \pm 0.2$ \\ \hline
-        
+
         \multirow{3}{*}{"["} & \textcolor{mygreen}{$513.1 \pm 18.8$} & \textcolor{mygreen}{$191.83 \pm 28.71$} & \textcolor{mygreen}{$3.8 \pm 1.6$} \\
         & \textcolor{mygreen2}{$507.9 \pm 15.6$} & \textcolor{mygreen2}{$0 \pm 0$} & \textcolor{mygreen2}{$0 \pm 0$}\\
         & $496.2 \pm 22.8$ & $5.8 \pm 5.1$ & $6.0 \pm 5.4$ \\ \hline
-        
+
         \multirow{3}{*}{"]"} & \textcolor{mygreen}{$509.6 \pm 18.3$} & \textcolor{mygreen}{$9.53 \pm 3.58$} & \textcolor{mygreen}{$3.0 \pm 1.4$}\\
         & \textcolor{mygreen2}{$514.4 \pm 18.3$} & \textcolor{mygreen2}{$0.13 \pm 0.34$} & \textcolor{mygreen2}{$0 \pm 0$}\\
         & $501.3 \pm 15.1$ & $0.05 \pm 0.03$ & $6.0 \pm 5.4$ \\ \hline
-        
+
         \multirow{3}{*}{"@"} & \textcolor{mygreen}{$507.0 \pm 20.8$} & \textcolor{mygreen}{$10.13 \pm 2.84$} & \textcolor{mygreen}{$3.9 \pm 2.1$} \\
         & \textcolor{mygreen2}{$508.8 \pm 22.5$} & \textcolor{mygreen2}{$0 \pm 0$} & \textcolor{mygreen2}{$0 \pm 0$} \\
         & $492.7 \pm 21.3$ & $25.1 \pm 14.1$ & $0.2 \pm 0.1$ \\ \hline
-        
+
         \multirow{3}{*}{other} & \multirow{3}{*}{-} & \textcolor{mygreen}{$656.23 \pm 30.19$} & \textcolor{mygreen}{$226.2 \pm 22.5$} \\
         & & \textcolor{mygreen2}{$3.13 \pm 2.03$} & \textcolor{mygreen2}{$0.2 \pm 0.6$} \\
         & & $0.05 \pm 0.04$ & $0.6 \pm 0.5$ \\ \hline
@@ -291,22 +291,22 @@ As in the former article, we measure the average absolute value of $\mathbf{W^{m
     \begin{tabular}{|c|C{35mm}|}
         \hline
         \begin{tabular}[c]{@{}c@{}}considered weights\end{tabular} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}average absolute value\end{tabular}}\\ \hline \hline
-        
+
         \multirow{3}{*}{input to WM-units weights} &
-        \textcolor{mygreen}{$0.3395 \pm 0.2975$} \\ 
-        & \textcolor{mygreen2}{$0.2834 \pm 0.2445$} \\ 
+        \textcolor{mygreen}{$0.3395 \pm 0.2975$} \\
+        & \textcolor{mygreen2}{$0.2834 \pm 0.2445$} \\
         & $0.2327 \pm 0.1813$ \\ \hline
-        
+
         \multirow{3}{*}{reservoir to WM-units weights} &
-        \textcolor{mygreen}{$0.0971 \pm 0.0920$} \\ 
-        & \textcolor{mygreen2}{$0.0852 \pm 0.0782$} \\ 
+        \textcolor{mygreen}{$0.0971 \pm 0.0920$} \\
+        & \textcolor{mygreen2}{$0.0852 \pm 0.0782$} \\
         & $0.0667 \pm 0.0591$ \\ \hline
-        
+
         \multirow{3}{*}{WM-units to WM-units weights} &
-        \textcolor{mygreen}{$0.9217 \pm 0.6893$} \\ 
-        & \textcolor{mygreen2}{$0.7003 \pm 0.5436$} \\ 
+        \textcolor{mygreen}{$0.9217 \pm 0.6893$} \\
+        & \textcolor{mygreen2}{$0.7003 \pm 0.5436$} \\
         & $0.5825 \pm 0.5627$ \\ \hline
-        
+
     \end{tabular}
     \caption{Average learned output weights of the ESN over 30 runs. Colour light green is used for results using \textit{FreeMono} as font, dark green for \textit{Inconsolata}, and black for the original results.}
     \label{tab:wmem}
@@ -335,6 +335,6 @@ As in the original paper, for both \textit{Freemono} and \textit{Inconsolata} fo
 
 Considering the original tools were not sourced, we needed to use our own tools, whether it be for the language, the fonts but also for the input generation, which could easily justify the differences between the original results and the ones found in this replication. However, these differences also highlight the fact that this model is really modular and consistent, giving similar results despite the differences in fonts and error rates. \\
 \\
-In the end, we consider that we have been able to successfully replicate the result obtained by Pascanu and Jaeger in \textit{A Neurodynamical Model for Working Memory}. 
+In the end, we consider that we have been able to successfully replicate the result obtained by Pascanu and Jaeger in \textit{A Neurodynamical Model for Working Memory}.
 %With the same ESN-based model (i.e. mainly composed of random connections)
-Very few information were missing in the original paper, such as the input generation methods from string to image they used, a more precise definition of the noise they added or the ASCII characters alphabet they designed@Vahidrostami.
+Very few information were missing in the original paper, such as the input generation methods from string to image they used, a more precise definition of the noise they added or the ASCII characters alphabet they used.

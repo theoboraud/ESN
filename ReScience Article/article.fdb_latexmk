@@ -1,11 +1,11 @@
 # Fdb version 3
-["biber article"] 1615889935 "article.bcf" "article.bbl" "article" 1615889958
-  "article.bcf" 1615889958 100804 5489e04a7686d02f2b0eb8fcf2e2c6cb "pdflatex"
+["biber article"] 1615889935 "article.bcf" "article.bbl" "article" 1616100880
+  "article.bcf" 1616100880 100804 5489e04a7686d02f2b0eb8fcf2e2c6cb "pdflatex"
   "bibliography.bib" 1615577177 802 b0aa735c4f789548935088be85959598 ""
   (generated)
-  "article.blg"
   "article.bbl"
-["pdflatex"] 1615889955 "article.tex" "article.pdf" "article" 1615889958
+  "article.blg"
+["pdflatex"] 1616100877 "article.tex" "article.pdf" "article" 1616100880
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -214,12 +214,12 @@
   "/usr/local/texlive/2020/texmf-dist/web2c/texmf.cnf" 1583102494 39451 60d7debd9ef8ece44cbe965493576c2d ""
   "/usr/local/texlive/2020/texmf-var/web2c/xetex/xelatex.fmt" 1615889406 4769628 641ffbbed204b3441abdc3a1b4735b5f ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "article.aux" 1615889958 12239 52eecd023b042741801214f4f05b3e32 "pdflatex"
+  "article.aux" 1616100880 12239 52eecd023b042741801214f4f05b3e32 "pdflatex"
   "article.bbl" 1615889948 3625 7d033a3eb2e09f28e48023e4a12a7ed1 "biber article"
-  "article.out" 1615889958 1097 e31a6fe64c8a86c3ea23ecb81bea45ba "pdflatex"
-  "article.run.xml" 1615889958 2429 bb3cd8c5c8f3243a6e2037a1c8323856 "pdflatex"
+  "article.out" 1616100880 1097 e31a6fe64c8a86c3ea23ecb81bea45ba "pdflatex"
+  "article.run.xml" 1616100880 2429 bb3cd8c5c8f3243a6e2037a1c8323856 "pdflatex"
   "article.tex" 1615577177 641 bf9c64a390d92eedb97e8fd4b40b54db ""
-  "content.tex" 1615577177 27881 89c4441ade2f2ae20dabab9a37485fca ""
+  "content.tex" 1616100859 27729 c622ba55b02bd569c472e59d42db4a78 ""
   "data/Architecture.png" 1615577177 277644 6429397d7cbbcbac562fd8f341666170 ""
   "data/FreeMono_PCA.png" 1615577177 84334 a54dfda63832591ce6000533105b148e ""
   "data/Inconsolata_PCA.png" 1615577177 85739 62088922c42cb4ba1d216ca3a4cd03aa ""
@@ -231,8 +231,8 @@
   "rescience.cls" 1615577177 10414 e3e34a8f580d0ead33e12af7d3aeb794 ""
   (generated)
   "article.run.xml"
-  "article.aux"
   "article.pdf"
-  "article.log"
   "article.out"
+  "article.log"
+  "article.aux"
   "article.bcf"
