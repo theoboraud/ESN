@@ -54,10 +54,11 @@ class Affiliation:
         self.address = address
 
 class Repository:
-    def __init__(self, name, url, doi):
+    def __init__(self, name, url, doi, swh=""):
         self.name = name
         self.url = url
         self.doi = doi
+        self.swh = swh
 
 class Replication:
     def __init__(self, cite, bib, url, doi):
@@ -167,7 +168,7 @@ class Article:
 
 
     def parse(self, data):
-        document = yaml.load(data)
+        document = yaml.load(data, Loader=yaml.SafeLoader)
 
         self.title = document.get("title", "")
         self.abstract = document.get("abstract","") or ""
@@ -230,7 +231,8 @@ class Article:
                               for key, value in data.items()}
             self.code = Repository("code",
                                    code.get("url","") or "",
-                                   code.get("doi","") or "")
+                                   code.get("doi","") or "",
+                                   code.get("swh","") or "")
         else:
             raise IndexError("Code repository not found")
 

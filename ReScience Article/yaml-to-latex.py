@@ -5,11 +5,12 @@
 def generate_latex_metadata(filename, article):
 
     abstract = article.abstract.replace("&", "\&")
-    
+
     content = (
         "% DO NOT EDIT - automatically generated from {filename}\n\n"
         "\\def \\codeURL{{{_.code.url}}}\n"
         "\\def \\codeDOI{{{_.code.doi}}}\n"
+        "\\def \\codeSWH{{{_.code.swh}}}\n"
         "\\def \\dataURL{{{_.data.url}}}\n"
         "\\def \\dataDOI{{{_.data.doi}}}\n"
         "\\def \\editorNAME{{{_.editors[0].name}}}\n"
@@ -59,15 +60,19 @@ def generate_latex_metadata(filename, article):
             content += "\\affil[{_.code}]{{{_.name}, {_.address}}}\n".format(_=a)
         else:
             content += "\\affil[{_.code}]{{{_.name}}}\n".format(_=a)
-                
+
     return content
 
 
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
+    import locale
     import argparse
     from article import Article
+
+    # Set to a UTF-8 locale - any non-ascii characters in the metadata in metadata.yaml should be in UTF-8
+    locale.setlocale(locale.LC_ALL,'en_US.UTF-8')
 
     parser = argparse.ArgumentParser(description='YAML to latex converter.')
     parser.add_argument('--input', '-i', dest='filename_in', action='store',
@@ -80,7 +85,7 @@ if __name__ == '__main__':
     filename_out = args.filename_out
 
     # print("Generating latex definitions ({1}) from {0}".format(filename_in, filename_out))
-    
+
     with open(filename_in, "r") as file:
         article = Article(file.read())
 

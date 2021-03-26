@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020) (preloaded format=xelatex 2021.3.16)  18 MAR 2021 21:54
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020) (preloaded format=xelatex 2021.3.16)  26 MAR 2021 11:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -24,15 +24,7 @@ File: size10.clo 2019/12/20 v1.4l Standard LaTeX file (size option)
 \belowcaptionskip=\skip48
 \bibindent=\dimen134
 )
-(/usr/local/texlive/2020/texmf-dist/tex/latex/base/inputenc.sty
-Package: inputenc 2018/08/11 v1.3c Input encoding file
-\inpenc@prehook=\toks15
-\inpenc@posthook=\toks16
-
-
-Package inputenc Warning: inputenc package ignored with utf8 based engines.
-
-) (/usr/local/texlive/2020/texmf-dist/tex/generic/babel/babel.sty
+(/usr/local/texlive/2020/texmf-dist/tex/generic/babel/babel.sty
 Package: babel 2020/03/22 3.42 The Babel package
 
 (/usr/local/texlive/2020/texmf-dist/tex/generic/babel/switch.def
@@ -72,7 +64,7 @@ Package: array 2019/08/31 v2.4l Tabular extension package (FMi)
 \col@sep=\dimen136
 \ar@mcellbox=\box45
 \extrarowheight=\dimen137
-\NC@list=\toks17
+\NC@list=\toks15
 \extratabsurround=\skip49
 \backup@length=\skip50
 \ar@cellbox=\box46
@@ -83,14 +75,14 @@ Package: array 2019/08/31 v2.4l Tabular extension package (FMi)
 \TX@target=\dimen141
 \TX@delta=\dimen142
 \TX@cols=\count173
-\TX@ftn=\toks18
+\TX@ftn=\toks16
 )
 (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
 (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
 (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.te
 x
-\pgfutil@everybye=\toks19
+\pgfutil@everybye=\toks17
 \pgfutil@tempdima=\dimen143
 \pgfutil@tempdimb=\dimen144
 
@@ -113,7 +105,7 @@ Package: graphicx 2019/11/30 v1.2a Enhanced LaTeX Graphics (DPC,SPQR)
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
-\KV@toks@=\toks20
+\KV@toks@=\toks18
 )
 (/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2019/11/30 v1.4a Standard LaTeX Graphics (DPC,SPQR)
@@ -136,12 +128,12 @@ File: xetex.def 2017/06/24 v5.0h Graphics/color driver for xetex
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
 Package: pgfsys 2020/01/08 v3.1.5b (3.1.5b)
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
-\pgfkeys@pathtoks=\toks21
-\pgfkeys@temptoks=\toks22
+\pgfkeys@pathtoks=\toks19
+\pgfkeys@temptoks=\toks20
 
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfkeysfiltered.c
 ode.tex
-\pgfkeys@tmptoks=\toks23
+\pgfkeys@tmptoks=\toks21
 ))
 \pgf@x=\dimen147
 \pgf@y=\dimen148
@@ -159,9 +151,9 @@ ode.tex
 \c@pgf@countb=\count175
 \c@pgf@countc=\count176
 \c@pgf@countd=\count177
-\t@pgf@toka=\toks24
-\t@pgf@tokb=\toks25
-\t@pgf@tokc=\toks26
+\t@pgf@toka=\toks22
+\t@pgf@tokb=\toks23
+\t@pgf@tokc=\toks24
 \pgf@sys@id@count=\count178
 
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
@@ -217,9 +209,9 @@ Package: pgfcore 2020/01/08 v3.1.5b (3.1.5b)
 \pgfmath@dimen=\dimen157
 \pgfmath@count=\count182
 \pgfmath@box=\box48
-\pgfmath@toks=\toks27
-\pgfmath@stack@operand=\toks28
-\pgfmath@stack@operation=\toks29
+\pgfmath@toks=\toks25
+\pgfmath@stack@operand=\toks26
+\pgfmath@stack@operation=\toks27
 )
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.
 tex
@@ -371,8 +363,8 @@ Package: pgffor 2020/01/08 v3.1.5b (3.1.5b)
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)
 \pgffor@iter=\dimen184
 \pgffor@skip=\dimen185
-\pgffor@stack=\toks30
-\pgffor@toks=\toks31
+\pgffor@stack=\toks28
+\pgffor@toks=\toks29
 ))
 (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.cod
 e.tex
@@ -431,7 +423,7 @@ Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
 \csq@qlevel=\count267
 \csq@maxlvl=\count268
 \csq@tshold=\count269
-\csq@ltx@everypar=\toks32
+\csq@ltx@everypar=\toks30
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/csquotes/csquotes.def
 File: csquotes.def 2019-12-06 v5.2j csquotes generic definitions (JAW)
@@ -452,7 +444,7 @@ Package: amstext 2000/06/29 v2.01 AMS text
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks33
+\@emptytoks=\toks31
 \ex@=\dimen195
 ))
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsbsy.sty
@@ -482,21 +474,21 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 734.
 \dotsspace@=\muskip16
 \c@parentequation=\count277
 \dspbrk@lvl=\count278
-\tag@help=\toks34
+\tag@help=\toks32
 \row@=\count279
 \column@=\count280
 \maxfields@=\count281
-\andhelp@=\toks35
+\andhelp@=\toks33
 \eqnshift@=\dimen198
 \alignsep@=\dimen199
 \tagshift@=\dimen256
 \tagwidth@=\dimen257
 \totwidth@=\dimen258
 \lineht@=\dimen259
-\@envbody=\toks36
+\@envbody=\toks34
 \multlinegap=\skip52
 \multlinetaggap=\skip53
-\mathdisplay@stack=\toks37
+\mathdisplay@stack=\toks35
 LaTeX Info: Redefining \[ on input line 2859.
 LaTeX Info: Redefining \] on input line 2860.
 )
@@ -555,7 +547,7 @@ Package: iftex 2020/03/06 v1.0d TeX engine tests
 \Gm@layoutheight=\dimen275
 \Gm@layouthoffset=\dimen276
 \Gm@layoutvoffset=\dimen277
-\Gm@dimlist=\toks38
+\Gm@dimlist=\toks36
 )
 (/usr/local/texlive/2020/texmf-dist/tex/latex/fontspec/fontspec.sty
 (/usr/local/texlive/2020/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
@@ -635,7 +627,7 @@ Package fontspec Info: Font family 'RobotoCondensed(0)' created for font
 (fontspec)             'Roboto Condensed' with options
 (fontspec)             [Ligatures=TeX,Ligatures=TeX,Path =
 (fontspec)             ./roboto/RobotoCondensed-,Extension = .ttf,UprightFont
-(fontspec)             = Light,BoldFont = Regular].
+(fontspec)             = Light,BoldFont = Regular,ItalicFont = LightItalic].
 (fontspec)              
 (fontspec)              This font family consists of the following NFSS
 (fontspec)             series/shapes:
@@ -652,6 +644,12 @@ T;language=dflt;mapping=tex-text;"
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.:
 (fontspec)             <->"[./roboto/RobotoCondensed-Regular.ttf]/OT:script=DFL
 T;language=dflt;+smcp;mapping=tex-text;"
+(fontspec)             - 'italic' (m/it) with NFSS spec.:
+(fontspec)             <->"[./roboto/RobotoCondensed-LightItalic.ttf]/OT:script
+=DFLT;language=dflt;mapping=tex-text;"
+(fontspec)             - 'italic small caps'  (m/scit) with NFSS spec.:
+(fontspec)             <->"[./roboto/RobotoCondensed-LightItalic.ttf]/OT:script
+=DFLT;language=dflt;+smcp;mapping=tex-text;"
 
 
 Package fontspec Info: Font family 'SourceCodePro(0)' created for font 'Source
@@ -754,7 +752,7 @@ e=dflt;letterspace=35;+smcp;mapping=tex-text;"
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.sty
 Package: microtype 2019/11/18 v2.7d Micro-typographical refinements (RS)
-\MT@toks=\toks39
+\MT@toks=\toks37
 \MT@count=\count307
 LaTeX Info: Redefining \textls on input line 790.
 \MT@outer@kern=\dimen281
@@ -777,7 +775,7 @@ Package: titlesec 2019/10/16 v2.13 Sectioning titles
 \aftertitleunit=\skip59
 \ttl@plus=\dimen282
 \ttl@minus=\dimen283
-\ttl@toksa=\toks40
+\ttl@toksa=\toks38
 \titlewidth=\dimen284
 \titlewidthlast=\dimen285
 \titlewidthfirst=\dimen286
@@ -936,7 +934,7 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/listings/listings.sty
 \lst@mode=\count323
 \lst@gtempboxa=\box64
-\lst@token=\toks41
+\lst@token=\toks39
 \lst@length=\count324
 \lst@currlwidth=\dimen298
 \lst@column=\count325
@@ -962,7 +960,7 @@ Package: listings 2020/03/24 1.8d (Carsten Heinz)
 Package: enumitem 2019/06/20 v3.9 Customized lists
 \labelindent=\skip61
 \enit@outerparindent=\dimen302
-\enit@toks=\toks42
+\enit@toks=\toks40
 \enit@inbox=\box66
 \enit@count@id=\count331
 \enitdp@description=\count332
@@ -980,8 +978,8 @@ Package: tcolorbox 2019/11/15 version 4.22 text color boxes
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/verbatim.sty
 Package: verbatim 2019/11/10 v1.5r LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks43
-\verbatim@line=\toks44
+\every@verbatim=\toks41
+\verbatim@line=\toks42
 \verbatim@in@stream=\read4
 )
 (/usr/local/texlive/2020/texmf-dist/tex/latex/environ/environ.sty
@@ -1283,12 +1281,12 @@ Package: bibentry 2007/10/30 1.5 (PWD)
 (/usr/local/texlive/2020/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count467
-\float@exts=\toks45
+\float@exts=\toks43
 \float@box=\box79
-\@float@everytoks=\toks46
+\@float@everytoks=\toks44
 \@floatcapt=\box80
 )
-\@float@every@statement=\toks47
+\@float@every@statement=\toks45
 \c@statement=\count468
 
 (/usr/local/texlive/2020/texmf-dist/tex/generic/stringenc/se-ascii-print.def
@@ -1310,8 +1308,8 @@ Package: xkeyval 2014/12/03 v2.7a package option processing (HA)
 
 (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkeyval.tex
 (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkvutils.tex
-\XKV@toks=\toks48
-\XKV@tempa@toks=\toks49
+\XKV@toks=\toks46
+\XKV@tempa@toks=\toks47
 )
 \XKV@depth=\count469
 File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
@@ -1558,11 +1556,11 @@ Package microtype Info: Loading generic protrusion settings for font family
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-Package marginnote Info: Margin note 1.1 is on absolute page 1 on input line 47
+Package marginnote Info: Margin note 1.1 is on absolute page 1 on input line 50
 .
-Package marginnote Info: right page because not two side mode on input line 47.
+Package marginnote Info: right page because not two side mode on input line 50.
 
-Package marginnote Info: xpos seems to be 128.0374pt on input line 47.
+Package marginnote Info: xpos seems to be 128.0374pt on input line 50.
 )
 (./content.tex
 Underfull \hbox (badness 10000) in paragraph at lines 5--23
@@ -1702,12 +1700,12 @@ Package logreq Info: Writing requests to 'article.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 40368 strings out of 479418
- 819941 string characters out of 5884585
- 1624994 words of memory out of 5000000
- 57206 multiletter control sequences out of 15000+600000
- 537074 words of font info for 103 fonts, out of 8000000 for 9000
+ 40370 strings out of 479418
+ 820336 string characters out of 5884585
+ 1624304 words of memory out of 5000000
+ 57207 multiletter control sequences out of 15000+600000
+ 537090 words of font info for 105 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 68i,14n,105p,1152b,4672s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 68i,14n,109p,1152b,4772s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on article.pdf (9 pages).

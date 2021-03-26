@@ -10,8 +10,6 @@ INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/size10.clo
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/size10.clo
-INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/inputenc.sty
-INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/inputenc.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/babel/babel.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/babel/babel.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/babel/switch.def
