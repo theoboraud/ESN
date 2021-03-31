@@ -120,8 +120,8 @@ dates:
 # This information will be provided by the editor
 article:
   - number: 1 # Article number will be automatically assigned during publication
-  - doi: 10.5281/zenodo.4590961   # DOI from Zenodo
-  - url: https://zenodo.org/record/4590961/files/article.pdf   # Final PDF URL (Zenodo or rescience website?)
+  - doi: 10.5281/zenodo.4643968 #10.5281/zenodo.4590961 # DOI from Zenodo
+  - url: https://zenodo.org/record/4643968/files/article.pdf #https://zenodo.org/record/4590961/files/article.pdf # Final PDF URL (Zenodo or rescience website?)
 
 # This information will be provided by the editor
 journal:
