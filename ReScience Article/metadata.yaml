@@ -115,13 +115,13 @@ contributors:
 dates:
   - received: October 24, 2019
   - accepted: March 8, 2021
-  - published: March 9, 2021
+  - published: April 1, 2021
 
 # This information will be provided by the editor
 article:
-  - number: 1 # Article number will be automatically assigned during publication
-  - doi: 10.5281/zenodo.4643968 #10.5281/zenodo.4590961 # DOI from Zenodo
-  - url: https://zenodo.org/record/4643968/files/article.pdf #https://zenodo.org/record/4590961/files/article.pdf # Final PDF URL (Zenodo or rescience website?)
+  - number: 1 
+  - doi: 10.5281/zenodo.4655870
+  - url: https://zenodo.org/record/4655870/files/article.pdf
 
 # This information will be provided by the editor
 journal:
