@@ -22,6 +22,6 @@ six==1.15.0
 soupsieve==2.1
 threadpoolctl==2.1.0
 tqdm==4.55.0
-urllib3==1.26.2
+urllib3==1.26.4
 virtualenv==20.2.2
 webencodings==0.5.1
